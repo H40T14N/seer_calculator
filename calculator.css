@@ -1,0 +1,349 @@
+body {
+    margin: 0;
+    font-family: 'KaiTi', sans-serif;
+    color: #5181a1;
+}
+
+
+
+.nav {
+    width: 100%;
+    height: 50px;
+    background-color: rgba(8, 51, 86, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 容器样式 */
+.container {
+    width: 50%;
+    margin: 20px auto;
+    padding: 0 15px 15px;
+    overflow-x: auto;
+    background-color: rgba(8, 51, 86, 0.9);
+    position: relative;
+    top: 50px;
+    border-radius: 15px;
+}
+
+/* 帮助按钮 */
+.help-btn {
+    position: absolute;
+    top: 15px;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background-color: #0380ba;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+/* 弹窗样式 */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    width: 40%;
+    color: #fff;
+    background-color: rgba(3, 25, 41, 0.8);
+
+    padding: 30px 40px;
+    border: 1px solid #9cb6d2;
+    border-radius: 8px;
+    min-width: 200px;
+    text-align: center;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #666;
+}
+
+/* 移动端容器宽度 */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+    }
+
+    body {
+        font-size: 14px;
+    }
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 14px;
+    color: #5181a1;
+}
+
+/* 表单 grid 布局 */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 400px;
+}
+
+/* 每一行 */
+.form-row {
+    display: grid;
+    grid-template-columns: 100px repeat(6, 1fr);
+    gap: 3px;
+    align-items: center;
+}
+
+/* 标签列 */
+.form-label {
+    font-weight: 500;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+/* 普通单元格 */
+.form-cell {
+    display: flex;
+    justify-content: center;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    padding: 5px;
+    box-sizing: border-box;
+    min-height: 32px;
+}
+
+/* 只读单元格（不可写入） */
+.form-cell-readonly,
+#attribute-row>.form-cell-readonly:first-child {
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    padding: 5px;
+    background-color: #011320;
+    cursor: not-allowed;
+}
+
+.form-cell input {
+    width: 100%;
+    border: none;
+    background: transparent;
+    text-align: center;
+    outline: none;
+}
+
+/* 隐藏 number 输入框的上下箭头 */
+.form-cell input[type="number"]::-webkit-outer-spin-button,
+.form-cell input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.form-cell input[type="number"] {
+    -moz-appearance: textfield;
+    color: #5181a1;
+}
+
+/* 单元格内的 select 透明无边框样式 */
+.form-cell select.bare-select {
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+    text-align: center;
+    text-align-last: center;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    color: #5181a1;
+}
+
+/* 单元格内的输入框透明无边框样式 */
+.form-cell .select-input {
+    border: none;
+    background: transparent;
+    padding: 0;
+    width: 100%;
+    outline: none;
+    text-align: center;
+    color: #5181a1;
+}
+
+.calculate-row {
+    grid-template-columns: 100px repeat(6, 1fr);
+}
+
+.calculate-cell {
+    height: 20px;
+    grid-column: 7;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+.calculate-btn {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 4px;
+    background-color: #09baf4;
+    color: #fff;
+    font-family: 'KaiTi', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.calculate-btn:hover {
+    background-color: #07a8db;
+}
+
+/* 刻印多选框自定义样式 */
+.form-cell input[type="checkbox"] {
+    /* 禁用默认样式 */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    appearance: none;
+    width: 32px;
+    position: relative;
+    border-radius: 16px;
+    cursor: pointer;
+    background-color: #777;
+    transition: background-color 0.3s;
+}
+
+.form-cell input[type="checkbox"]::before {
+    content: "";
+    position: absolute;
+    height: calc(100% - 4px);
+    width: calc(50% - 5px);
+    background: white;
+    left: 2px;
+    top: 2px;
+    border-radius: 50%;
+    transition: left cubic-bezier(0.3, 1.5, 0.7, 1) 0.3s;
+}
+
+.form-cell input[type="checkbox"]:checked {
+    background-color: #09baf4;
+}
+
+.form-cell input[type="checkbox"]:checked::before {
+    left: calc(50% + 2px);
+}
+
+/* 自定义下拉框容器 */
+.custom-select-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+/* 自定义下拉框主体 */
+.custom-select {
+    position: relative;
+    width: 100%;
+}
+
+/* 搜索输入框 */
+.select-input {
+    text-align: center;
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+.select-input:focus {
+    outline: none;
+    border-color: #17588d;
+}
+
+/* 下拉选项列表 */
+.select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    max-height: calc(1.5em * 4 + 10px);
+    /* 最多显示4项 */
+    overflow-y: auto;
+    border: 1px solid #17588d;
+    background: #fff;
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+/* 隐藏原始下拉列表 */
+#character_select .select-options {
+    display: none !important;
+}
+
+/* body 下的全局下拉列表 */
+.character-dropdown {
+    position: fixed;
+    max-height: calc(1.5em * 4 + 10px);
+    overflow-y: auto;
+    border: 1px solid #17588d;
+    background: #fff;
+    box-sizing: border-box;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* 单个选项 */
+.character_opt {
+    padding: 2px 5px;
+    cursor: pointer;
+}
+
+.character_opt:hover {
+    background-color: #e0e0e0;
+}
+
+.character_opt.selected {
+    background-color: #d0d0d0;
+}
+
+#attribute-row>.form-cell-readonly {
+    font-weight: bold;
+    text-align: center;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    padding: 5px;
+    cursor: not-allowed;
+    background-color: #083356;
+}
