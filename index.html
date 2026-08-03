@@ -9,234 +9,364 @@
 </head>
 
 <body>
-    <div class="nav"></div>
-    <div class="container">
-        <button type="button" class="help-btn">?</button>
-        <h2>属性值计算器</h2>
-        <form id="learning_values_form" class="form-grid">
-            <!-- 表头行 -->
-            <div class="form-row header-row">
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly">物攻</div>
-                <div class="form-cell form-cell-readonly">防御</div>
-                <div class="form-cell form-cell-readonly">特攻</div>
-                <div class="form-cell form-cell-readonly">特防</div>
-                <div class="form-cell form-cell-readonly">速度</div>
-                <div class="form-cell form-cell-readonly">体力</div>
-            </div>
-            <!-- 种族值行 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">种族值</div>
-                <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
-                        placeholder="0~120">
-                </div>
-                <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
-                        placeholder="0~120">
-                </div>
-                <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
-                        placeholder="0~120">
-                </div>
-                <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
-                        placeholder="0~120">
-                </div>
-                <div class="form-cell"><input type="number" class="race_values" value="114" min="0" max="114"
-                        placeholder="0~114" placeholder="0~114"></div>
-                <div class="form-cell"><input type="number" class="race_values" value="150" min="0" max="150"
-                        placeholder="0~150">
-                </div>
-            </div>
-            <!-- 学习力行 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">学习力</div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-                <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
-                        placeholder="0~255"></div>
-            </div>
-            <!-- 天赋行 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">天赋</div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-                <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
-                        placeholder="0~31">
-                </div>
-            </div>
-            <!-- 刻印行 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">刻印</div>
-                <div class="form-cell">
-                    <input type="checkbox" id="attackEngraving" name="engraving">
-                </div>
-                <div class="form-cell">
-                    <input type="checkbox" id="defenseEngraving" name="engraving">
-                </div>
-                <div class="form-cell">
-                    <input type="checkbox" id="specialAttackEngraving" name="engraving">
-                </div>
-                <div class="form-cell">
-                    <input type="checkbox" id="specialDefenseEngraving" name="engraving">
-                </div>
-                <div class="form-cell">
-                    <input type="checkbox" id="speedEngraving" name="engraving">
-                </div>
-                <div class="form-cell">
-                    <input type="checkbox" id="healthPointEngraving" name="engraving">
-                </div>
-            </div>
-            <!-- 战队科技行 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">战队科技</div>
-                <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
-                        placeholder="0~5"></div>
-                <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
-                        placeholder="0~5"></div>
-                <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
-                        placeholder="0~5"></div>
-                <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
-                        placeholder="0~5"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell"><input type="number" class="team_tech" min="0" max="10" value="10"
-                        placeholder="0~10"></div>
-            </div>
-            <!-- 套装加成行 -->
-            <div class="form-row special-row">
-                <div class="form-label form-cell-readonly">套装加成</div>
-                <div class="form-cell">
-                    <select id="suit" class="bare-select">
-                        <option value="雪雷">雪雷</option>
-                        <option value="银翼骑士">银翼骑士</option>
-                        <option value="黑渊魔角">黑渊魔角</option>
-                        <option value="黑武士">黑武士</option>
-                        <option value="">无</option>
-                    </select>
-                </div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
+    <!-- 左侧边栏 -->
+    <aside class="sidebar">
+        <div class="sidebar-header">赛尔计算器</div>
+        <nav class="sidebar-nav">
+            <a href="#" class="sidebar-item active">
+                <span class="sidebar-icon"><img src="Assets/icon/calculator.svg" alt="计算器"></span>
+                <span class="sidebar-text">计算器</span>
+            </a>
+        </nav>
+    </aside>
 
+    <!-- 主内容区 -->
+    <main class="main-content">
+        <div class="nav"></div>
+        <div class="container">
+            <div class="title-header">
+                <div class="title-wrapper">
+                    <h2>属性值计算器</h2>
+                    <button type="button" class="switch-btn" id="switchBtn">
+                        <img src="Assets/icon/switch.svg" alt="切换">
+                    </button>
+                </div>
+                <button type="button" class="help-btn">?</button>
             </div>
-            <!-- 性格行 -->
-            <div class="form-row special-row">
-                <div class="form-label form-cell-readonly">性格</div>
-                <div class="form-cell">
-                    <div class="custom-select-wrapper">
-                        <div id="character_select" class="custom-select">
-                            <input type="text" id="character_search" class="select-input" value="实干"
-                                placeholder="输入/选择性格">
-                            <div class="select-options" style="display: none;">
-                                <div class="character_opt selected" data-value="固执">固执</div>
-                                <div class="character_opt" data-value="开朗">开朗</div>
-                                <div class="character_opt" data-value="保守">保守</div>
-                                <div class="character_opt" data-value="胆小">胆小</div>
-                                <div class="character_opt" data-value="孤独">孤独</div>
-                                <div class="character_opt" data-value="调皮">调皮</div>
-                                <div class="character_opt" data-value="勇敢">勇敢</div>
-                                <div class="character_opt" data-value="大胆">大胆</div>
-                                <div class="character_opt" data-value="顽皮">顽皮</div>
-                                <div class="character_opt" data-value="无虑">无虑</div>
-                                <div class="character_opt" data-value="悠闲">悠闲</div>
-                                <div class="character_opt" data-value="稳重">稳重</div>
-                                <div class="character_opt" data-value="马虎">马虎</div>
-                                <div class="character_opt" data-value="冷静">冷静</div>
-                                <div class="character_opt" data-value="沉着">沉着</div>
-                                <div class="character_opt" data-value="温顺">温顺</div>
-                                <div class="character_opt" data-value="慎重">慎重</div>
-                                <div class="character_opt" data-value="狂妄">狂妄</div>
-                                <div class="character_opt" data-value="急躁">急躁</div>
-                                <div class="character_opt" data-value="天真">天真</div>
-                                <div class="character_opt" data-value="认真">认真</div>
-                                <div class="character_opt" data-value="坦率">坦率</div>
-                                <div class="character_opt" data-value="实干">实干</div>
-                                <div class="character_opt" data-value="害羞">害羞</div>
-                                <div class="character_opt" data-value="浮躁">浮躁</div>
+            <form id="learning_values_form" class="form-grid">
+                <!-- 表头行 -->
+                <div class="form-row header-row">
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly">物攻</div>
+                    <div class="form-cell form-cell-readonly">防御</div>
+                    <div class="form-cell form-cell-readonly">特攻</div>
+                    <div class="form-cell form-cell-readonly">特防</div>
+                    <div class="form-cell form-cell-readonly">速度</div>
+                    <div class="form-cell form-cell-readonly">体力</div>
+                </div>
+                <!-- 种族值行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">种族值</div>
+                    <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
+                            placeholder="0~120">
+                    </div>
+                    <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
+                            placeholder="0~120">
+                    </div>
+                    <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
+                            placeholder="0~120">
+                    </div>
+                    <div class="form-cell"><input type="number" class="race_values" value="120" min="0" max="120"
+                            placeholder="0~120">
+                    </div>
+                    <div class="form-cell"><input type="number" class="race_values" value="114" min="0" max="114"
+                            placeholder="0~114" placeholder="0~114"></div>
+                    <div class="form-cell"><input type="number" class="race_values" value="150" min="0" max="150"
+                            placeholder="0~150">
+                    </div>
+                </div>
+                <!-- 学习力行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">学习力</div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                    <div class="form-cell"><input type="number" class="learning_values" value="0" min="0" max="255"
+                            placeholder="0~255"></div>
+                </div>
+                <!-- 天赋行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">天赋</div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                    <div class="form-cell"><input type="number" class="talent_values" value="31" min="0" max="31"
+                            placeholder="0~31">
+                    </div>
+                </div>
+                <!-- 刻印行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">刻印</div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="attackEngraving" name="engraving">
+                    </div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="defenseEngraving" name="engraving">
+                    </div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="specialAttackEngraving" name="engraving">
+                    </div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="specialDefenseEngraving" name="engraving">
+                    </div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="speedEngraving" name="engraving">
+                    </div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="healthPointEngraving" name="engraving">
+                    </div>
+                </div>
+                <!-- 战队科技行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">战队科技</div>
+                    <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
+                            placeholder="0~5"></div>
+                    <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
+                            placeholder="0~5"></div>
+                    <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
+                            placeholder="0~5"></div>
+                    <div class="form-cell"><input type="number" class="team_tech" min="0" max="5" value="5"
+                            placeholder="0~5"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell"><input type="number" class="team_tech" min="0" max="10" value="10"
+                            placeholder="0~10"></div>
+                </div>
+                <!-- 套装加成行 -->
+                <div class="form-row special-row">
+                    <div class="form-label form-cell-readonly">套装加成</div>
+                    <div class="form-cell">
+                        <select id="suit" class="bare-select">
+                            <option value="雪雷">雪雷</option>
+                            <option value="银翼骑士">银翼骑士</option>
+                            <option value="黑渊魔角">黑渊魔角</option>
+                            <option value="黑武士">黑武士</option>
+                            <option value="">无</option>
+                        </select>
+                    </div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+
+                </div>
+                <!-- 性格行 -->
+                <div class="form-row special-row">
+                    <div class="form-label form-cell-readonly">性格</div>
+                    <div class="form-cell">
+                        <div class="custom-select-wrapper">
+                            <div id="character_select" class="custom-select">
+                                <input type="text" id="character_search" class="select-input" value="实干"
+                                    placeholder="输入/选择性格">
+                                <div class="select-options" style="display: none;">
+                                    <div class="character_opt selected" data-value="固执">固执</div>
+                                    <div class="character_opt" data-value="开朗">开朗</div>
+                                    <div class="character_opt" data-value="保守">保守</div>
+                                    <div class="character_opt" data-value="胆小">胆小</div>
+                                    <div class="character_opt" data-value="孤独">孤独</div>
+                                    <div class="character_opt" data-value="调皮">调皮</div>
+                                    <div class="character_opt" data-value="勇敢">勇敢</div>
+                                    <div class="character_opt" data-value="大胆">大胆</div>
+                                    <div class="character_opt" data-value="顽皮">顽皮</div>
+                                    <div class="character_opt" data-value="无虑">无虑</div>
+                                    <div class="character_opt" data-value="悠闲">悠闲</div>
+                                    <div class="character_opt" data-value="稳重">稳重</div>
+                                    <div class="character_opt" data-value="马虎">马虎</div>
+                                    <div class="character_opt" data-value="冷静">冷静</div>
+                                    <div class="character_opt" data-value="沉着">沉着</div>
+                                    <div class="character_opt" data-value="温顺">温顺</div>
+                                    <div class="character_opt" data-value="慎重">慎重</div>
+                                    <div class="character_opt" data-value="狂妄">狂妄</div>
+                                    <div class="character_opt" data-value="急躁">急躁</div>
+                                    <div class="character_opt" data-value="天真">天真</div>
+                                    <div class="character_opt" data-value="认真">认真</div>
+                                    <div class="character_opt" data-value="坦率">坦率</div>
+                                    <div class="character_opt" data-value="实干">实干</div>
+                                    <div class="character_opt" data-value="害羞">害羞</div>
+                                    <div class="character_opt" data-value="浮躁">浮躁</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
 
-            </div>
+                </div>
 
-            <!-- 强化等级 -->
-            <div class="form-row">
-                <div class="form-label form-cell-readonly">强化等级</div>
-                <div class="form-cell">
-                    <input type="number" id="attackLevel" min="0" max="6" value="0">
+                <!-- 强化等级 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">强化等级</div>
+                    <div class="form-cell">
+                        <input type="number" id="attackLevel" min="-6" max="6" value="0" placeholder="-6~6">
+                    </div>
+                    <div class="form-cell">
+                        <input type="number" id="defenseLevel" min="-6" max="6" value="0" placeholder="-6~6">
+                    </div>
+                    <div class="form-cell">
+                        <input type="number" id="specialAttackLevel" min="-6" max="6" value="0" placeholder="-6~6">
+                    </div>
+                    <div class="form-cell">
+                        <input type="number" id="specialDefenseLevel" min="-6" max="6" value="0" placeholder="-6~6">
+                    </div>
+                    <div class="form-cell">
+                        <input type="number" id="speedLevel" min="-6" max="6" value="0" placeholder="-6~6">
+                    </div>
+                    <div class="form-cell form-cell-readonly"> </div>
                 </div>
-                <div class="form-cell">
-                    <input type="number" id="defenseLevel" min="0" max="6" value="0">
-                </div>
-                <div class="form-cell">
-                    <input type="number" id="specialAttackLevel" min="0" max="6" value="0">
-                </div>
-                <div class="form-cell">
-                    <input type="number" id="specialDefenseLevel" min="0" max="6" value="0">
-                </div>
-                <div class="form-cell">
-                    <input type="number" id="speedLevel" min="0" max="6" value="0">
-                </div>
-                <div class="form-cell form-cell-readonly"> </div>
-            </div>
-            <!-- 属性值 -->
-            <div class="form-row" id="attribute-row">
-                <div class="form-label form-cell-readonly">属性值</div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
-                <div class="form-cell form-cell-readonly"></div>
 
-            </div>
-            <!-- 计算按钮 -->
-            <div class="form-row calculate-row">
-                <div class="form-cell calculate-cell">
-                    <button type="button" id="calculateBtn" class="calculate-btn">计算</button>
+                <!-- 属性值 -->
+                <div class="form-row" id="attribute-row">
+                    <div class="form-label form-cell-readonly">属性值</div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+
                 </div>
-            </div>
-        </form>
-    </div>
+                <!-- 计算按钮 -->
+                <div class="form-row calculate-row">
+                    <div class="form-cell calculate-cell">
+                        <button type="button" id="calculateBtn" class="calculate-btn">计算</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- 伤害计算器表单 -->
+            <form id="damage_calculator_form" class="form-grid" style="display: none;">
+                <!-- 表头行 -->
+                <div class="form-row header-row">
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly">攻击</div>
+                    <div class="form-cell form-cell-readonly">防御</div>
+                    <div class="form-cell form-cell-readonly">等级</div>
+                    <div class="form-cell form-cell-readonly">技能威力</div>
+                    <div class="form-cell form-cell-readonly">克制系数</div>
+                    <div class="form-cell form-cell-readonly">本系加成</div>
+                </div>
+                <!-- 攻击方属性行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">攻击方</div>
+                    <div class="form-cell"><input type="number" class="attack_value" value="0" min="0" placeholder="0">
+                    </div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell"><input type="number" class="attack_level" value="100" min="0" max="100"
+                            placeholder="0~999"></div>
+                    <div class="form-cell"><input type="number" class="skill_power" value="150" min="0"
+                            placeholder="0~160">
+                    </div>
+                    <div class="form-cell"><input type="number" class="restraint_coefficient" value="1" min="0"
+                            step="0.5" placeholder="0"></div>
+                    <div class="form-cell">
+                        <input type="checkbox" id="sameTypeBonus" name="same_type_bonus">
+                    </div>
+                </div>
+                <!-- 防御方属性行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">防御方</div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell"><input type="number" class="defense_value" value="0" min="0" placeholder="0">
+                    </div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                    <div class="form-cell form-cell-readonly"></div>
+                </div>
+                <!-- 增减伤配置行 -->
+                <div class="form-row">
+                    <div class="form-label form-cell-readonly">增减伤</div>
+                    <div class="form-cell" colspan="6">
+                        <button type="button" class="config-damage-btn" id="configDamageBtn"><img
+                                src="Assets/icon/config.svg" alt="配置增减伤"></img></button>
+                    </div>
+                </div>
+                <!-- 伤害结果行 -->
+                <div class="form-row" id="damage-result-row">
+                    <div class="form-label form-cell-readonly">伤害区间</div>
+                    <div class="form-cell form-cell-readonly" colspan="6" id="damageResult">-</div>
+                </div>
+                <!-- 计算按钮 -->
+                <div class="form-row calculate-row">
+                    <div class="form-cell calculate-cell">
+                        <button type="button" class="calculate-btn" id="calculateDamageBtn">计算</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
 
     <!-- 帮助弹窗 -->
     <div class="modal-overlay" id="helpModal">
         <div class="modal-content">
             <button type="button" class="modal-close">&times;</button>
-            <p style="text-indent: 2em; text-align: left;">一般来说，<strong>精灵的属性值=[（属性种族值*2+精灵天赋值+属性学习力/4）*
-                    等级/100+5]*性格调整倍率+其他调整值（如套装加成、刻印加成、战队属性
-                    加成、特训、增幅等）；对于精灵的体力值上限，则为[（属性种族值*2+精灵
-                    天赋值+属性学习力/4）*等级/100+10+等级]+其他调整值。</strong>精灵每升1级提升的属性是相等的，如果出现非整数情况，则按照小数点后忽略不计来进位取整。
-            </p>
-            <p style="text-indent: 2em; text-align: left;">
-                由于大部分精灵的等级最佳养成方案都是提升至100级，小部分精灵例如<strong>阿勇（13级）</strong>并没有计算属性值的需求，故本计算器计算公式中默认精灵等级为100级。此等级与魂系精灵、贝特卡恩等因技能效果的提升/降低等级并非一个概念，前者属于养成等级，会同时影响精灵的属性值计算公式和伤害计算公式；后者属于局内等级，只会影响伤害计算公式。
-            </p>
+            <!-- 属性值计算器帮助内容 -->
+            <div id="attributeHelp">
+                <p style="text-indent: 2em; text-align: left;">一般来说，<strong
+                        style="color: #e4ac26">精灵的属性值=[（属性种族值*2+精灵天赋值+属性学习力/4）*
+                        等级/100+5]*性格调整倍率+其他调整值（如套装加成、刻印加成、战队属性
+                        加成、特训、增幅等）；对于精灵的体力值上限，则为[（属性种族值*2+精灵
+                        天赋值+属性学习力/4）*等级/100+10+等级]+其他调整值。</strong>精灵每升1级提升的属性是相等的，如果出现非整数情况，则按照小数点后忽略不计来进位取整。
+                </p>
+                <p style="text-indent: 2em; text-align: left;">
+                    由于大部分精灵的等级最佳养成方案都是提升至100级，小部分精灵例如<strong>阿勇（13级）</strong>并没有计算属性值的需求，故本计算器计算公式中默认精灵等级为100级。此等级与魂系精灵、贝特卡恩等因技能效果的提升/降低等级并非一个概念，前者属于养成等级，会同时影响精灵的属性值计算公式和伤害计算公式；后者属于局内等级，只会影响伤害计算公式。
+                </p>
+            </div>
+            <!-- 伤害计算器帮助内容 -->
+            <div id="damageHelp" style="display: none;">
+                <p style="text-indent: 2em; text-align: left;">伤害计算公式一般为：
+                    <strong
+                        style="color: #e4ac26">【（攻击方的等级*0.4+2）*技能威力×攻击方的攻击值/防御方对应的防御值/50】*本系加成修正*克制系数*（217-255）/255*致命一击系数。</strong>
+                </p>
+                <p style="text-indent: 2em; text-align: left;">
+
+                </p>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 增减伤配置弹窗 -->
+    <div class="modal-overlay" id="damageConfigModal">
+        <div class="modal-content damage-config-content">
+            <button type="button" class="modal-close">&times;</button>
+            <h3>增减伤效果配置</h3>
+            <div class="damage-config-body">
+                <!-- 左侧：编辑区域 -->
+                <div class="damage-edit-section">
+                    <h4>编辑增减伤</h4>
+                    <div class="damage-effect-list" id="damageEffectList">
+                        <!-- 动态添加的增减伤项 -->
+                    </div>
+                    <div class="edit-buttons">
+                        <button type="button" class="edit-btn add-btn" id="addEffectBtn">+ 添加</button>
+                        <button type="button" class="edit-btn save-btn" id="saveEffectsBtn">保存</button>
+                    </div>
+                </div>
+                <!-- 右侧：显示区域 -->
+                <div class="damage-display-section">
+                    <h4>已保存的增减伤</h4>
+                    <div class="saved-effects-list" id="savedEffectsList">
+                        <!-- 显示已保存的增减伤 -->
+                    </div>
+                </div>
+            </div>
+            <div class="damage-config-footer">
+                <button type="button" class="footer-btn delete-btn" id="clearAllBtn">清空</button>
+                <button type="button" class="footer-btn confirm-btn" id="confirmDamageConfig">确认</button>
+            </div>
         </div>
     </div>
 

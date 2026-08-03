@@ -1,6 +1,30 @@
 // 性格因子数组
 const factors = [1, 1, 1, 1, 1]
 
+// 计算器切换逻辑
+const switchBtn = document.getElementById('switchBtn')
+const attributeForm = document.getElementById('learning_values_form')
+const damageForm = document.getElementById('damage_calculator_form')
+const titleText = document.querySelector('.title-header h2')
+const helpBtn = document.querySelector('.help-btn')
+
+let isAttributeMode = true
+
+switchBtn.addEventListener('click', () => {
+    if (isAttributeMode) {
+        // 切换到伤害计算器
+        attributeForm.style.display = 'none'
+        damageForm.style.display = 'flex'
+        titleText.textContent = '伤害计算器'
+    } else {
+        // 切换到属性计算器
+        damageForm.style.display = 'none'
+        attributeForm.style.display = 'flex'
+        titleText.textContent = '属性值计算器'
+    }
+    isAttributeMode = !isAttributeMode
+})
+
 const characterSelect = document.getElementById('character_select')
 const characterSearch = document.getElementById('character_search')
 const selectOptions = characterSelect.querySelector('.select-options')
@@ -210,7 +234,7 @@ function calculateAttributes() {
     const suitValue = document.getElementById('suit').value
     const suitBonus = suitBonuses[suitValue] || [0, 0, 0, 0, 0, 0]
 
-    // 强化等级
+    // 强化等级（支持-6到6，正数为强化，负数为弱化）
     const levelIds = ['attackLevel', 'defenseLevel', 'specialAttackLevel', 'specialDefenseLevel', 'speedLevel']
     const levels = levelIds.map(id => {
         const value = Number(document.getElementById(id).value)
@@ -235,8 +259,17 @@ function calculateAttributes() {
         base += engravings[i] ? engravingBonus[i] : 0
         base += suitBonus[i]
 
-        // 强化等级倍率
-        const multiplier = (2 + levels[i]) / 2
+        // 强化/弱化等级倍率
+        // 正数n：倍率 = (2+n)/2（强化）
+        // 负数n：倍率 = 2/(2+|n|)（弱化）
+        let multiplier = 1
+        if (levels[i] > 0) {
+            // 强化：n级正面强化
+            multiplier = (2 + levels[i]) / 2
+        } else if (levels[i] < 0) {
+            // 弱化：n级负面弱化
+            multiplier = 2 / (2 + Math.abs(levels[i]))
+        }
         base *= multiplier
 
         results.push(Math.floor(base))
@@ -253,12 +286,200 @@ function calculateAttributes() {
 // 绑定计算按钮事件
 document.getElementById('calculateBtn').addEventListener('click', calculateAttributes)
 
+// 伤害计算函数
+function calculateDamage() {
+    // 获取输入值
+    const attackValue = Number(document.querySelector('.attack_value').value) || 0
+    const defenseValue = Number(document.querySelector('.defense_value').value) || 0
+    const attackLevel = Number(document.querySelector('.attack_level').value) || 0
+    const skillPower = Number(document.querySelector('.skill_power').value) || 0
+    const restraintCoefficient = Number(document.querySelector('.restraint_coefficient').value) || 1
+    const sameTypeBonus = document.getElementById('sameTypeBonus').checked
+
+    // 本系加成修正：checked为1.5，unchecked为1
+    const sameTypeMultiplier = sameTypeBonus ? 1.5 : 1
+
+    // 计算基础伤害
+    // 公式：（攻击方的等级*0.4+2）*技能威力×攻击方的攻击值/防御方对应的防御值/50
+    let baseDamage = (attackLevel * 0.4 + 2) * skillPower * attackValue / defenseValue / 50
+
+    // 应用增减伤效果（每次四舍五入）
+    // 正数为增伤，负数为减伤
+    damageEffects.forEach(effect => {
+        if (effect > 0) {
+            // 增伤：伤害 * (1 + 百分比/100)
+            baseDamage = Math.round(baseDamage * (1 + effect / 100))
+        } else if (effect < 0) {
+            // 减伤：伤害 * (1 - |百分比|/100)
+            baseDamage = Math.round(baseDamage * (1 - Math.abs(effect) / 100))
+        }
+    })
+
+    // 计算最终伤害区间
+    // 公式：基础伤害 * 本系加成修正 * 克制系数 * (217-255) / 255
+    const minDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 217 / 255)
+    const maxDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 255 / 255)
+
+    // 显示结果
+    const damageResult = document.getElementById('damageResult')
+    if (defenseValue === 0 || attackValue === 0 || skillPower === 0) {
+        damageResult.textContent = '请输入有效数值'
+    } else {
+        damageResult.textContent = `${minDamage} ~ ${maxDamage}`
+    }
+
+    console.log(`伤害计算：基础伤害=${baseDamage}, 最小=${minDamage}, 最大=${maxDamage}`)
+}
+
+// 绑定伤害计算按钮事件
+document.getElementById('calculateDamageBtn').addEventListener('click', calculateDamage)
+
+// 增减伤配置弹窗逻辑
+const damageConfigModal = document.getElementById('damageConfigModal')
+const configDamageBtn = document.getElementById('configDamageBtn')
+const addEffectBtn = document.getElementById('addEffectBtn')
+const damageEffectList = document.getElementById('damageEffectList')
+const savedEffectsList = document.getElementById('savedEffectsList')
+const confirmDamageConfig = document.getElementById('confirmDamageConfig')
+const saveEffectsBtn = document.getElementById('saveEffectsBtn')
+const clearAllBtn = document.getElementById('clearAllBtn')
+
+// 存储增减伤效果数据
+let damageEffects = []
+
+// 打开配置弹窗
+configDamageBtn.addEventListener('click', () => {
+    damageConfigModal.classList.add('active')
+    renderEditEffects()
+    renderSavedEffects()
+})
+
+// 关闭弹窗（点击关闭按钮或弹窗外部）
+damageConfigModal.addEventListener('click', (e) => {
+    if (e.target === damageConfigModal || e.target.classList.contains('modal-close')) {
+        damageConfigModal.classList.remove('active')
+    }
+})
+
+// 添加增减伤项
+addEffectBtn.addEventListener('click', () => {
+    const effectItem = document.createElement('div')
+    effectItem.className = 'damage-effect-item'
+    effectItem.innerHTML = `
+        <span class="effect-number"></span>
+        <input type="number" class="effect-input" placeholder="百分比（正为增伤，负为减伤）" step="0.01">
+        <button type="button" class="remove-effect-btn">删除</button>
+    `
+    damageEffectList.appendChild(effectItem)
+
+    // 绑定删除按钮事件
+    effectItem.querySelector('.remove-effect-btn').addEventListener('click', () => {
+        effectItem.remove()
+        updateEffectNumbers()
+    })
+
+    // 更新序号
+    updateEffectNumbers()
+})
+
+// 保存增减伤效果（保存到右侧）
+saveEffectsBtn.addEventListener('click', () => {
+    // 收集所有增减伤效果
+    damageEffects = []
+    const items = damageEffectList.querySelectorAll('.damage-effect-item')
+    items.forEach(item => {
+        const input = item.querySelector('.effect-input')
+        const value = Number(input.value)
+        if (!isNaN(value) && value !== 0) {
+            damageEffects.push(value)
+        }
+    })
+
+    console.log('增减伤效果已保存:', damageEffects)
+    renderSavedEffects()
+})
+
+// 清空所有增减伤
+clearAllBtn.addEventListener('click', () => {
+    damageEffects = []
+    damageEffectList.innerHTML = ''
+    renderSavedEffects()
+    console.log('增减伤效果已清空')
+})
+
+// 确认配置
+confirmDamageConfig.addEventListener('click', () => {
+    damageConfigModal.classList.remove('active')
+})
+
+// 渲染编辑区的增减伤效果
+function renderEditEffects() {
+    damageEffectList.innerHTML = ''
+
+    damageEffects.forEach((value, index) => {
+        const effectItem = document.createElement('div')
+        effectItem.className = 'damage-effect-item'
+        effectItem.innerHTML = `
+            <span class="effect-number">${index + 1}.</span>
+            <input type="number" class="effect-input" value="${value}" placeholder="百分比（正为增伤，负为减伤）" step="0.01">
+            <button type="button" class="remove-effect-btn">删除</button>
+        `
+        damageEffectList.appendChild(effectItem)
+
+        // 绑定删除按钮事件
+        effectItem.querySelector('.remove-effect-btn').addEventListener('click', () => {
+            effectItem.remove()
+            updateEffectNumbers()
+        })
+    })
+}
+
+// 渲染已保存的增减伤效果（右侧显示）
+function renderSavedEffects() {
+    savedEffectsList.innerHTML = ''
+
+    if (damageEffects.length === 0) {
+        savedEffectsList.innerHTML = '<div class="saved-effect-item">暂无保存的增减伤效果</div>'
+        return
+    }
+
+    damageEffects.forEach((value, index) => {
+        const savedItem = document.createElement('div')
+        savedItem.className = 'saved-effect-item'
+        const effectType = value > 0 ? '增伤' : '减伤'
+        savedItem.textContent = `${index + 1}. ${effectType} ${Math.abs(value)}%`
+        savedEffectsList.appendChild(savedItem)
+    })
+}
+
+// 更新序号
+function updateEffectNumbers() {
+    const items = damageEffectList.querySelectorAll('.damage-effect-item')
+    items.forEach((item, index) => {
+        const numberSpan = item.querySelector('.effect-number')
+        numberSpan.textContent = `${index + 1}.`
+    })
+}
+
 // 帮助弹窗逻辑
-const helpBtn = document.querySelector('.help-btn')
 const helpModal = document.getElementById('helpModal')
 const modalClose = document.querySelector('.modal-close')
+const attributeHelp = document.getElementById('attributeHelp')
+const damageHelp = document.getElementById('damageHelp')
+
+// 更新帮助内容显示
+function updateHelpContent() {
+    if (isAttributeMode) {
+        attributeHelp.style.display = 'block'
+        damageHelp.style.display = 'none'
+    } else {
+        attributeHelp.style.display = 'none'
+        damageHelp.style.display = 'block'
+    }
+}
 
 helpBtn.addEventListener('click', () => {
+    updateHelpContent()
     helpModal.classList.add('active')
 })
 
