@@ -22,7 +22,13 @@
 
     <!-- 主内容区 -->
     <main class="main-content">
-        <div class="nav"></div>
+        <div class="nav">
+            <button type="button" class="hamburger-btn" id="hamburgerBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
         <div class="container">
             <div class="title-header">
                 <div class="title-wrapper">
@@ -163,46 +169,13 @@
                 <div class="form-row special-row">
                     <div class="form-label form-cell-readonly">性格</div>
                     <div class="form-cell">
-                        <div class="custom-select-wrapper">
-                            <div id="character_select" class="custom-select">
-                                <input type="text" id="character_search" class="select-input" value="实干"
-                                    placeholder="输入/选择性格">
-                                <div class="select-options" style="display: none;">
-                                    <div class="character_opt selected" data-value="固执">固执</div>
-                                    <div class="character_opt" data-value="开朗">开朗</div>
-                                    <div class="character_opt" data-value="保守">保守</div>
-                                    <div class="character_opt" data-value="胆小">胆小</div>
-                                    <div class="character_opt" data-value="孤独">孤独</div>
-                                    <div class="character_opt" data-value="调皮">调皮</div>
-                                    <div class="character_opt" data-value="勇敢">勇敢</div>
-                                    <div class="character_opt" data-value="大胆">大胆</div>
-                                    <div class="character_opt" data-value="顽皮">顽皮</div>
-                                    <div class="character_opt" data-value="无虑">无虑</div>
-                                    <div class="character_opt" data-value="悠闲">悠闲</div>
-                                    <div class="character_opt" data-value="稳重">稳重</div>
-                                    <div class="character_opt" data-value="马虎">马虎</div>
-                                    <div class="character_opt" data-value="冷静">冷静</div>
-                                    <div class="character_opt" data-value="沉着">沉着</div>
-                                    <div class="character_opt" data-value="温顺">温顺</div>
-                                    <div class="character_opt" data-value="慎重">慎重</div>
-                                    <div class="character_opt" data-value="狂妄">狂妄</div>
-                                    <div class="character_opt" data-value="急躁">急躁</div>
-                                    <div class="character_opt" data-value="天真">天真</div>
-                                    <div class="character_opt" data-value="认真">认真</div>
-                                    <div class="character_opt" data-value="坦率">坦率</div>
-                                    <div class="character_opt" data-value="实干">实干</div>
-                                    <div class="character_opt" data-value="害羞">害羞</div>
-                                    <div class="character_opt" data-value="浮躁">浮躁</div>
-                                </div>
-                            </div>
-                        </div>
+                        <button type="button" class="select-character-btn" id="selectCharacterBtn">选择性格</button>
                     </div>
                     <div class="form-cell form-cell-readonly"></div>
                     <div class="form-cell form-cell-readonly"></div>
                     <div class="form-cell form-cell-readonly"></div>
                     <div class="form-cell form-cell-readonly"></div>
                     <div class="form-cell form-cell-readonly"></div>
-
                 </div>
 
                 <!-- 强化等级 -->
@@ -293,13 +266,14 @@
                                 src="Assets/icon/config.svg" alt="配置增减伤"></img></button>
                     </div>
                 </div>
-                <!-- 伤害结果行 -->
-                <div class="form-row" id="damage-result-row">
-                    <div class="form-label form-cell-readonly">伤害区间</div>
-                    <div class="form-cell form-cell-readonly" colspan="6" id="damageResult">-</div>
-                </div>
-                <!-- 计算按钮 -->
+                <!-- 计算按钮和伤害结果 -->
                 <div class="form-row calculate-row">
+                    <div class="damage-result-container">
+                        <div class="damage-result-label" style="color: #5181a1;">伤害区间</div>
+                        <div class="damage-result-box">
+                            <div class="damage-result-value" id="damageResult">-</div>
+                        </div>
+                    </div>
                     <div class="form-cell calculate-cell">
                         <button type="button" class="calculate-btn" id="calculateDamageBtn">计算</button>
                     </div>
@@ -321,7 +295,7 @@
                         天赋值+属性学习力/4）*等级/100+10+等级]+其他调整值。</strong>精灵每升1级提升的属性是相等的，如果出现非整数情况，则按照小数点后忽略不计来进位取整。
                 </p>
                 <p style="text-indent: 2em; text-align: left;">
-                    由于大部分精灵的等级最佳养成方案都是提升至100级，小部分精灵例如<strong>阿勇（13级）</strong>并没有计算属性值的需求，故本计算器计算公式中默认精灵等级为100级。此等级与魂系精灵、贝特卡恩等因技能效果的提升/降低等级并非一个概念，前者属于养成等级，会同时影响精灵的属性值计算公式和伤害计算公式；后者属于局内等级，只会影响伤害计算公式。
+                    由于大部分精灵的等级最佳养成方案都是提升至100级，小部分精灵例如<strong>阿勇（13级）</strong>并没有计算属性值的需求，故本计算器计算公式中默认精灵等级为100级。此等级与魂系精灵、贝特卡恩等因技能效果的提升/降低的等级并非一个概念，前者属于养成等级，会同时影响精灵的属性值计算公式和伤害计算公式；后者属于局内等级，只会影响伤害计算公式。
                 </p>
             </div>
             <!-- 伤害计算器帮助内容 -->
@@ -366,6 +340,38 @@
             <div class="damage-config-footer">
                 <button type="button" class="footer-btn delete-btn" id="clearAllBtn">清空</button>
                 <button type="button" class="footer-btn confirm-btn" id="confirmDamageConfig">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 性格选择弹窗 -->
+    <div class="modal-overlay" id="characterModal">
+        <div class="modal-content character-modal-content">
+            <h3>性格选择</h3>
+            <div class="character-tabs">
+                <button type="button" class="character-tab active" data-category="attack">攻击型</button>
+                <button type="button" class="character-tab" data-category="defense">防御型</button>
+                <button type="button" class="character-tab" data-category="special">特攻型</button>
+                <button type="button" class="character-tab" data-category="speed">速度型</button>
+                <button type="button" class="character-tab" data-category="balance">平衡型</button>
+            </div>
+            <div class="character-table-container">
+                <table class="character-table" id="characterTable">
+                    <thead>
+                        <tr>
+                            <th>性格</th>
+                            <th>物攻</th>
+                            <th>防御</th>
+                            <th>特攻</th>
+                            <th>特防</th>
+                            <th>速度</th>
+                            <th>选择</th>
+                        </tr>
+                    </thead>
+                    <tbody id="characterTableBody">
+                        <!-- 动态生成性格数据 -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

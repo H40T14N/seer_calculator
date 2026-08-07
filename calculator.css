@@ -92,8 +92,43 @@ body {
     height: 50px;
     background-color: rgba(8, 51, 86, 0.9);
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
+    padding: 0 15px;
+}
+
+/* 汉堡菜单按钮 */
+.hamburger-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 30px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10;
+}
+
+.hamburger-btn span {
+    width: 30px;
+    height: 3px;
+    background-color: #fff;
+    border-radius: 2px;
+    transition: all 0.3s;
+}
+
+.hamburger-btn.active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.hamburger-btn.active span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-btn.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
 }
 
 /* 容器样式 */
@@ -150,14 +185,621 @@ body {
     color: #666;
 }
 
-/* 移动端容器宽度 */
-@media (max-width: 768px) {
-    .container {
+/* 选择性格按钮样式 */
+.select-character-btn {
+    width: 100%;
+    padding: 5px;
+    border: none;
+    border-radius: 4px;
+    background-color: #0380ba;
+    color: #fff;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-height: 32px;
+    box-sizing: border-box;
+}
+
+.select-character-btn:hover {
+    background-color: #026a9a;
+}
+
+/* 性格选择弹窗样式 */
+.character-modal-content {
+    width: 40%;
+    max-width: 700px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.character-modal-content h3 {
+    margin: 0 0 12px 0;
+    color: #5181a1;
+    font-size: 16px;
+}
+
+/* 性格分类标签 */
+.character-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.character-tab {
+    padding: 6px 12px;
+    border: 2px solid #17588d;
+    border-radius: 4px;
+    background: transparent;
+    color: #5181a1;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.character-tab:hover {
+    border-color: #0380ba;
+    color: #0380ba;
+}
+
+.character-tab.active {
+    background-color: #0380ba;
+    border-color: #0380ba;
+    color: #fff;
+}
+
+/* 性格表格容器 */
+.character-table-container {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* 性格表格样式 */
+.character-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.character-table th,
+.character-table td {
+    border: 1px solid #17588d;
+    padding: 6px 3px;
+    text-align: center;
+}
+
+.character-table th {
+    background-color: #083356;
+    color: #e4ac26;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    font-size: 13px;
+}
+
+.character-table td {
+    color: #5181a1;
+    font-size: 13px;
+}
+
+.character-table tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* 性格名称列 */
+.character-table td:first-child {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* 属性值单元格 */
+.character-table td.positive {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.character-table td.negative {
+    color: #dc3545;
+    font-weight: bold;
+}
+
+/* 选择按钮 */
+.character-select-btn {
+    padding: 4px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #e4ac26;
+    color: #fff;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.character-select-btn:hover {
+    background-color: #d49b1a;
+}
+
+.character-select-btn.selected {
+    background-color: #28a745;
+}
+
+/* 移动端适配 - 横屏模式 */
+@media (max-width: 768px) and (orientation: landscape) {
+
+    /* 显示汉堡菜单按钮 */
+    .hamburger-btn {
+        display: flex;
+    }
+
+    /* 侧边栏默认隐藏，可通过汉堡菜单呼出 */
+    .sidebar {
+        position: fixed;
+        left: -220px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* 主内容占满宽度 */
+    .main-content {
         width: 100%;
+    }
+
+    /* 容器样式调整 */
+    .container {
+        width: 95%;
+        margin: 10px auto;
+        padding: 0 10px 10px;
+        top: 10px;
     }
 
     body {
         font-size: 14px;
+    }
+
+    /* 标题区域调整 */
+    .title-header {
+        height: auto;
+        min-height: 40px;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+    }
+
+    .title-wrapper {
+        position: relative;
+        left: auto;
+        transform: none;
+        width: 100%;
+        justify-content: center;
+        margin-bottom: 5px;
+    }
+
+    h2 {
+        font-size: 16px;
+    }
+
+    /* 帮助按钮位置调整 */
+    .help-btn {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    /* 表单布局调整 */
+    .form-grid {
+        min-width: 100%;
+        font-size: 12px;
+    }
+
+    .form-row {
+        grid-template-columns: 80px repeat(6, 1fr);
+        gap: 2px;
+    }
+
+    .form-cell {
+        min-height: 28px;
+        padding: 3px;
+        font-size: 12px;
+    }
+
+    .form-cell input {
+        font-size: 12px;
+    }
+
+    /* 计算按钮调整 */
+    .calculate-btn {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    /* 配置增减伤按钮调整 */
+    .config-damage-btn {
+        font-size: 12px;
+        padding: 3px;
+        min-height: 28px;
+    }
+
+    /* 性格选择按钮调整 */
+    .select-character-btn {
+        font-size: 12px;
+        padding: 3px;
+        min-height: 28px;
+    }
+
+    /* 弹窗调整 */
+    .modal-content {
+        width: 85% !important;
+        max-width: none;
+        padding: 15px;
+        margin: 10px;
+    }
+
+    /* 增减伤配置弹窗调整 */
+    .damage-config-content {
+        width: 85%;
+        max-height: 85vh;
+    }
+
+    .damage-config-body {
+        flex-direction: row;
+        gap: 15px;
+    }
+
+    .damage-edit-section,
+    .damage-display-section {
+        width: 50%;
+    }
+
+    .edit-buttons {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .edit-btn {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    /* 性格选择弹窗调整 */
+    .character-modal-content {
+        width: 80%;
+        max-height: 85vh;
+    }
+
+    .character-tabs {
+        gap: 8px;
+    }
+
+    .character-tab {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .character-table th,
+    .character-table td {
+        padding: 5px 6px;
+        font-size: 11px;
+    }
+
+    .character-select-btn {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+
+    /* 帮助弹窗调整 */
+    .modal-content p {
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
+    /* 伤害结果显示调整 */
+    .damage-result-container {
+        grid-column: 5 / 7;
+        gap: 2px;
+        margin-right: 2px;
+    }
+
+    .damage-result-box {
+        height: 24px;
+        font-size: 12px;
+        min-width: 90px;
+    }
+
+    .damage-result-label {
+        font-size: 10px;
+    }
+}
+
+/* 移动端适配 - 竖屏模式 */
+@media (max-width: 768px) and (orientation: portrait) {
+
+    /* 显示汉堡菜单按钮 */
+    .hamburger-btn {
+        display: flex;
+    }
+
+    /* 侧边栏默认隐藏，可通过汉堡菜单呼出 */
+    .sidebar {
+        position: fixed;
+        left: -220px;
+        top: 0;
+        height: 100vh;
+        z-index: 1000;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.active {
+        left: 0;
+    }
+
+    /* 主内容占满宽度 */
+    .main-content {
+        width: 100%;
+    }
+
+    /* 容器样式调整 */
+    .container {
+        width: 98%;
+        margin: 5px auto;
+        padding: 0 5px 5px;
+        top: 5px;
+    }
+
+    body {
+        font-size: 12px;
+    }
+
+    /* 标题区域调整 */
+    .title-header {
+        height: auto;
+        min-height: 35px;
+        margin: 5px 7px;
+    }
+
+    .title-wrapper {
+        position: relative;
+        left: auto;
+        transform: none;
+        width: 100%;
+        justify-content: center;
+    }
+
+    h2 {
+        font-size: 14px;
+    }
+
+    /* 帮助按钮位置调整 */
+    .help-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+
+    /* 表单布局调整 */
+    .form-grid {
+        min-width: 100%;
+        font-size: 11px;
+    }
+
+    .form-row {
+        grid-template-columns: 70px repeat(6, 1fr);
+        gap: 1px;
+    }
+
+    .form-cell {
+        min-height: 24px;
+        padding: 2px;
+        font-size: 11px;
+    }
+
+    .form-cell input {
+        font-size: 11px;
+    }
+
+    /* 计算按钮调整 */
+    .calculate-btn {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+
+    /* 配置增减伤按钮调整 */
+    .config-damage-btn {
+        font-size: 11px;
+        padding: 2px;
+        min-height: 24px;
+    }
+
+    /* 性格选择按钮调整 */
+    .select-character-btn {
+        font-size: 11px;
+        padding: 2px;
+        min-height: 24px;
+    }
+
+    /* 弹窗调整 */
+    .modal-content {
+        width: 98% !important;
+        max-width: none;
+        padding: 10px;
+        margin: 5px;
+    }
+
+    /* 增减伤配置弹窗调整 */
+    .damage-config-content {
+        width: 98%;
+        max-height: 90vh;
+    }
+
+    .damage-config-body {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .damage-edit-section,
+    .damage-display-section {
+        width: 100%;
+    }
+
+    .edit-buttons {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .edit-btn {
+        padding: 6px;
+        font-size: 11px;
+    }
+
+    /* 性格选择弹窗调整 */
+    .character-modal-content {
+        width: 98%;
+        max-height: 90vh;
+    }
+
+    .character-tabs {
+        gap: 5px;
+        justify-content: center;
+    }
+
+    .character-tab {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    .character-table th,
+    .character-table td {
+        padding: 4px 5px;
+        font-size: 10px;
+    }
+
+    .character-select-btn {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+
+    /* 帮助弹窗调整 */
+    .modal-content p {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    /* 伤害结果显示调整 */
+    .damage-result-container {
+        gap: 1px;
+        margin-right: 1px;
+    }
+
+    .damage-result-box {
+        height: 20px;
+        font-size: 11px;
+        padding: 2px 6px;
+        min-width: 80px;
+    }
+
+    .damage-result-label {
+        font-size: 9px;
+    }
+
+    /* 移除横屏提示 */
+    .container::before {
+        display: none;
+    }
+}
+
+/* 更小屏幕的适配 */
+@media (max-width: 480px) {
+    .container {
+        width: 98%;
+        margin: 5px auto;
+        padding: 0 5px 5px;
+        top: 5px;
+    }
+
+    .form-row {
+        grid-template-columns: 70px repeat(6, 1fr);
+        gap: 1px;
+    }
+
+    .form-cell {
+        min-height: 26px;
+        padding: 2px;
+        font-size: 11px;
+    }
+
+    .form-cell input {
+        font-size: 11px;
+    }
+
+    h2 {
+        font-size: 14px;
+    }
+
+    /* 表头文字缩小 */
+    .header-row .form-cell-readonly {
+        font-size: 11px;
+    }
+
+    /* 弹窗进一步调整 */
+    .modal-content {
+        padding: 10px;
+    }
+
+    .damage-config-content h3 {
+        font-size: 14px;
+    }
+
+    .damage-edit-section h4,
+    .damage-display-section h4 {
+        font-size: 13px;
+    }
+
+    /* 按钮更紧凑 */
+    .edit-btn,
+    .footer-btn {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    /* 删除按钮更小 */
+    .remove-effect-btn {
+        padding: 4px 8px;
+        font-size: 11px;
+    }
+
+    /* 伤害结果显示调整 */
+    .damage-result-container {
+        grid-column: 5 / 7;
+        gap: 1px;
+        margin-right: 1px;
+    }
+
+    .damage-result-box {
+        height: 18px;
+        font-size: 10px;
+        padding: 2px 5px;
+        min-width: 70px;
+    }
+
+    .damage-result-label {
+        font-size: 9px;
     }
 }
 
@@ -473,16 +1115,54 @@ h2 {
     background-color: #083356;
 }
 
-/* 伤害结果行样式 */
-#damage-result-row .form-cell {
-    font-weight: bold;
-    text-align: center;
-    background-color: #083356;
+/* 伤害结果容器样式 */
+.damage-result-container {
+    grid-column: 5 / 7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    margin-right: 3px;
 }
 
-#damageResult {
+/* 伤害区间标题 */
+.damage-result-label {
+    font-size: 11px;
+    color: #e4ac26;
+    font-weight: bold;
+    line-height: 1;
+    text-shadow: 0 0 2px rgba(228, 172, 38, 0.5);
+    letter-spacing: 1px;
+}
+
+/* 伤害结果值盒子 */
+.damage-result-box {
+    height: 26px;
+    padding: 2px 8px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    background-color: #083356;
     color: #5181a1;
-    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 100px;
+}
+
+.damage-result-value {
+    font-size: 13px;
+    font-weight: bold;
+    color: #5181a1;
+    line-height: 1;
+}
+
+.calculate-row {
+    position: relative;
 }
 
 /* 增减伤配置按钮样式 */

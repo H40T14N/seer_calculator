@@ -1,6 +1,159 @@
 // 性格因子数组
 const factors = [1, 1, 1, 1, 1]
 
+// 当前选择的性格
+let currentCharacter = '实干'
+
+// 性格数据（按分类组织）
+const characterData = {
+    attack: [
+        { name: '孤独', factors: [1.1, 0.9, 1, 1, 1] },
+        { name: '勇敢', factors: [1.1, 1, 1, 1, 0.9] },
+        { name: '调皮', factors: [1.1, 1, 1, 0.9, 1] },
+        { name: '固执', factors: [1.1, 1, 0.9, 1, 1] }
+    ],
+    defense: [
+        { name: '大胆', factors: [0.9, 1.1, 1, 1, 1] },
+        { name: '无虑', factors: [1, 1.1, 1, 0.9, 1] },
+        { name: '悠闲', factors: [1, 1.1, 1, 1, 0.9] },
+        { name: '顽皮', factors: [1, 1.1, 0.9, 1, 1] }
+    ],
+    special: [
+        { name: '保守', factors: [0.9, 1, 1.1, 1, 1] },
+        { name: '马虎', factors: [1, 1, 1.1, 0.9, 1] },
+        { name: '稳重', factors: [1, 0.9, 1.1, 1, 1] },
+        { name: '冷静', factors: [1, 1, 1.1, 1, 0.9] }
+    ],
+    speed: [
+        { name: '胆小', factors: [0.9, 1, 1, 1, 1.1] },
+        { name: '急躁', factors: [1, 0.9, 1, 1, 1.1] },
+        { name: '天真', factors: [1, 1, 1, 0.9, 1.1] },
+        { name: '开朗', factors: [1, 1, 0.9, 1, 1.1] }
+    ],
+    balance: [
+        { name: '认真', factors: [1, 1, 1, 1, 1] },
+        { name: '坦率', factors: [1, 1, 1, 1, 1] },
+        { name: '实干', factors: [1, 1, 1, 1, 1] },
+        { name: '害羞', factors: [1, 1, 1, 1, 1] },
+        { name: '浮躁', factors: [1, 1, 1, 1, 1] }
+    ]
+}
+
+// 性格选择弹窗逻辑
+const characterModal = document.getElementById('characterModal')
+const selectCharacterBtn = document.getElementById('selectCharacterBtn')
+const characterTableBody = document.getElementById('characterTableBody')
+const characterTabs = document.querySelectorAll('.character-tab')
+
+let currentCategory = 'attack'
+
+// 打开性格选择弹窗
+selectCharacterBtn.addEventListener('click', () => {
+    characterModal.classList.add('active')
+    renderCharacterTable(currentCategory)
+})
+
+// 点击弹窗外部关闭弹窗
+characterModal.addEventListener('click', (e) => {
+    if (e.target === characterModal) {
+        characterModal.classList.remove('active')
+    }
+})
+
+// 切换分类标签
+characterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // 移除所有active状态
+        characterTabs.forEach(t => t.classList.remove('active'))
+        // 添加当前active状态
+        tab.classList.add('active')
+        // 更新当前分类
+        currentCategory = tab.dataset.category
+        // 重新渲染表格
+        renderCharacterTable(currentCategory)
+    })
+})
+
+// 渲染性格表格
+function renderCharacterTable(category) {
+    characterTableBody.innerHTML = ''
+    
+    const characters = characterData[category] || []
+    
+    characters.forEach(char => {
+        const row = document.createElement('tr')
+        
+        // 性格名称
+        const nameCell = document.createElement('td')
+        nameCell.textContent = char.name
+        row.appendChild(nameCell)
+        
+        // 属性因子（物攻、防御、特攻、特防、速度）
+        const attrNames = ['物攻', '防御', '特攻', '特防', '速度']
+        char.factors.forEach((factor, index) => {
+            const cell = document.createElement('td')
+            
+            if (factor > 1) {
+                cell.textContent = '+10%'
+                cell.className = 'positive'
+            } else if (factor < 1) {
+                cell.textContent = '-10%'
+                cell.className = 'negative'
+            } else {
+                cell.textContent = '-'
+            }
+            
+            row.appendChild(cell)
+        })
+        
+        // 选择按钮
+        const actionCell = document.createElement('td')
+        const selectBtn = document.createElement('button')
+        selectBtn.type = 'button'
+        selectBtn.className = 'character-select-btn'
+        selectBtn.textContent = '选择'
+        
+        // 如果是当前选择的性格，显示为已选
+        if (char.name === currentCharacter) {
+            selectBtn.classList.add('selected')
+            selectBtn.textContent = '已选'
+        }
+        
+        selectBtn.addEventListener('click', () => {
+            // 更新当前性格
+            currentCharacter = char.name
+            // 更新按钮文本
+            selectCharacterBtn.textContent = char.name
+            // 关闭弹窗
+            characterModal.classList.remove('active')
+            // 重新计算属性值
+            calculateAttributes()
+        })
+        
+        actionCell.appendChild(selectBtn)
+        row.appendChild(actionCell)
+        
+        characterTableBody.appendChild(row)
+    })
+}
+// 汉堡菜单按钮逻辑
+const hamburgerBtn = document.getElementById('hamburgerBtn')
+const sidebar = document.querySelector('.sidebar')
+
+// 切换侧边栏
+hamburgerBtn.addEventListener('click', () => {
+    hamburgerBtn.classList.toggle('active')
+    sidebar.classList.toggle('active')
+})
+
+// 点击侧边栏外部关闭侧边栏
+document.addEventListener('click', (e) => {
+    if (!sidebar.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+        hamburgerBtn.classList.remove('active')
+        sidebar.classList.remove('active')
+    }
+})
+
 // 计算器切换逻辑
 const switchBtn = document.getElementById('switchBtn')
 const attributeForm = document.getElementById('learning_values_form')
@@ -25,39 +178,8 @@ switchBtn.addEventListener('click', () => {
     isAttributeMode = !isAttributeMode
 })
 
-const characterSelect = document.getElementById('character_select')
-const characterSearch = document.getElementById('character_search')
-const selectOptions = characterSelect.querySelector('.select-options')
-const allOptions = Array.from(characterSelect.querySelectorAll('.character_opt'))
-
 // 刻印多选框
 const engravings = document.querySelectorAll('input[name="engraving"]')
-
-// 将下拉列表移动到 body 下，避免被容器 overflow 裁剪
-const dropdown = document.createElement('div')
-dropdown.className = 'select-options character-dropdown'
-dropdown.style.display = 'none'
-document.body.appendChild(dropdown)
-
-// 同步选项内容到 body 下拉列表
-function syncDropdown() {
-    dropdown.innerHTML = ''
-    allOptions.forEach(opt => {
-        if (opt.style.display !== 'none') {
-            dropdown.appendChild(opt.cloneNode(true))
-        }
-    })
-}
-
-// 定位下拉列表
-function positionDropdown() {
-    const rect = characterSelect.getBoundingClientRect()
-    dropdown.style.position = 'fixed'
-    dropdown.style.left = rect.left + 'px'
-    dropdown.style.top = rect.bottom + 'px'
-    dropdown.style.width = rect.width + 'px'
-    dropdown.style.zIndex = '10000'
-}
 
 // 刻印6选3
 engravings.forEach(engraving => {
@@ -70,74 +192,6 @@ engravings.forEach(engraving => {
     })
 })
 
-// 点击输入框，展开下拉列表
-characterSearch.addEventListener('focus', () => {
-    syncDropdown()
-    positionDropdown()
-    dropdown.style.display = 'block'
-    // 重置显示所有选项
-    allOptions.forEach(opt => opt.style.display = 'block')
-})
-
-// 处理选项选择
-function selectOption(option) {
-    // 更新原选项选中状态
-    allOptions.forEach(opt => opt.classList.remove('selected'))
-    const originalOption = allOptions.find(opt => opt.dataset.value === option.dataset.value)
-    if (originalOption) {
-        originalOption.classList.add('selected')
-    }
-
-    // 更新输入框值
-    characterSearch.value = option.textContent
-    console.log(characterSearch.value)
-    console.log(characterFactors(characterSearch.value))
-    // 隐藏下拉列表
-    dropdown.style.display = 'none'
-}
-
-// 点击原下拉列表中的选项
-selectOptions.addEventListener('click', (e) => {
-    const option = e.target.closest('.character_opt')
-    if (!option) return
-    selectOption(option)
-})
-
-// 点击 body 下拉列表中的选项
-dropdown.addEventListener('click', (e) => {
-    const option = e.target.closest('.character_opt')
-    if (!option) return
-    selectOption(option)
-})
-
-// 点击其他地方关闭下拉列表
-document.addEventListener('click', (e) => {
-    if (!characterSelect.contains(e.target) && !dropdown.contains(e.target)) {
-        dropdown.style.display = 'none'
-    }
-})
-
-// 搜索过滤
-characterSearch.addEventListener('input', () => {
-    const keyword = characterSearch.value.toLowerCase()
-    allOptions.forEach(opt => {
-        const text = opt.textContent.toLowerCase()
-        opt.style.display = text.includes(keyword) ? 'block' : 'none'
-    })
-    // 输入时同步并展开下拉列表
-    syncDropdown()
-    positionDropdown()
-    dropdown.style.display = 'block'
-})
-
-// 窗口滚动或缩放时隐藏下拉列表
-window.addEventListener('scroll', () => {
-    dropdown.style.display = 'none'
-})
-window.addEventListener('resize', () => {
-    dropdown.style.display = 'none'
-})
-
 /**
  * 根据性格返回对应的属性因子
  * 属性顺序：物攻、防御、特攻、特防、速度
@@ -146,54 +200,16 @@ window.addEventListener('resize', () => {
  * @returns {number[]} 属性因子数组
  */
 function characterFactors(character) {
-    // 重置为1
-    factors.fill(1)
-    switch (character) {
-        case '孤独':
-            factors[0] = 1.1; factors[1] = 0.9; break
-        case '勇敢':
-            factors[0] = 1.1; factors[4] = 0.9; break
-        case '调皮':
-            factors[0] = 1.1; factors[3] = 0.9; break
-        case '固执':
-            factors[0] = 1.1; factors[2] = 0.9; break
-        case '大胆':
-            factors[1] = 1.1; factors[0] = 0.9; break
-        case '无虑':
-            factors[1] = 1.1; factors[3] = 0.9; break
-        case '悠闲':
-            factors[1] = 1.1; factors[4] = 0.9; break
-        case '顽皮':
-            factors[1] = 1.1; factors[2] = 0.9; break
-        case '保守':
-            factors[2] = 1.1; factors[0] = 0.9; break
-        case '马虎':
-            factors[2] = 1.1; factors[3] = 0.9; break
-        case '稳重':
-            factors[2] = 1.1; factors[1] = 0.9; break
-        case '冷静':
-            factors[2] = 1.1; factors[4] = 0.9; break
-        case '沉着':
-            factors[3] = 1.1; factors[0] = 0.9; break
-        case '狂妄':
-            factors[3] = 1.1; factors[4] = 0.9; break
-        case '温顺':
-            factors[3] = 1.1; factors[1] = 0.9; break
-        case '慎重':
-            factors[3] = 1.1; factors[2] = 0.9; break
-        case '胆小':
-            factors[4] = 1.1; factors[0] = 0.9; break
-        case '急躁':
-            factors[4] = 1.1; factors[1] = 0.9; break
-        case '天真':
-            factors[4] = 1.1; factors[3] = 0.9; break
-        case '开朗':
-            factors[4] = 1.1; factors[2] = 0.9; break
-        // 平衡性格：认真、坦率、实干、害羞、浮躁 - 保持全1
+    // 从性格数据中查找
+    for (let category in characterData) {
+        const found = characterData[category].find(c => c.name === character)
+        if (found) {
+            return found.factors
+        }
     }
-    return factors
+    // 默认返回平衡性格
+    return [1, 1, 1, 1, 1]
 }
-// 套装加成映射
 const suitBonuses = {
     '雪雷': [15, 15, 15, 15, 0, 30],
     '银翼骑士': [30, 0, 30, 0, 0, 30],
@@ -223,8 +239,7 @@ function calculateAttributes() {
     const teamTech = [teamTechInputs[0], teamTechInputs[1], teamTechInputs[2], teamTechInputs[3], 0, teamTechInputs[4]]
 
     // 性格因子
-    const character = characterSearch.value
-    const characterFactorList = characterFactors(character)
+    const characterFactorList = characterFactors(currentCharacter)
 
     // 刻印
     const engravingIds = ['attackEngraving', 'defenseEngraving', 'specialAttackEngraving', 'specialDefenseEngraving', 'speedEngraving', 'healthPointEngraving']
@@ -317,8 +332,12 @@ function calculateDamage() {
 
     // 计算最终伤害区间
     // 公式：基础伤害 * 本系加成修正 * 克制系数 * (217-255) / 255
-    const minDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 217 / 255)
-    const maxDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 255 / 255)
+    let minDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 217 / 255)
+    let maxDamage = Math.round(baseDamage * sameTypeMultiplier * restraintCoefficient * 255 / 255)
+
+    // 限制伤害值在0-9999范围内
+    minDamage = Math.max(0, Math.min(9999, minDamage))
+    maxDamage = Math.max(0, Math.min(9999, maxDamage))
 
     // 显示结果
     const damageResult = document.getElementById('damageResult')
