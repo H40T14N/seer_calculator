@@ -77,22 +77,22 @@ characterTabs.forEach(tab => {
 // 渲染性格表格
 function renderCharacterTable(category) {
     characterTableBody.innerHTML = ''
-    
+
     const characters = characterData[category] || []
-    
+
     characters.forEach(char => {
         const row = document.createElement('tr')
-        
+
         // 性格名称
         const nameCell = document.createElement('td')
         nameCell.textContent = char.name
         row.appendChild(nameCell)
-        
+
         // 属性因子（物攻、防御、特攻、特防、速度）
         const attrNames = ['物攻', '防御', '特攻', '特防', '速度']
         char.factors.forEach((factor, index) => {
             const cell = document.createElement('td')
-            
+
             if (factor > 1) {
                 cell.textContent = '+10%'
                 cell.className = 'positive'
@@ -102,23 +102,23 @@ function renderCharacterTable(category) {
             } else {
                 cell.textContent = '-'
             }
-            
+
             row.appendChild(cell)
         })
-        
+
         // 选择按钮
         const actionCell = document.createElement('td')
         const selectBtn = document.createElement('button')
         selectBtn.type = 'button'
         selectBtn.className = 'character-select-btn'
         selectBtn.textContent = '选择'
-        
+
         // 如果是当前选择的性格，显示为已选
         if (char.name === currentCharacter) {
             selectBtn.classList.add('selected')
             selectBtn.textContent = '已选'
         }
-        
+
         selectBtn.addEventListener('click', () => {
             // 更新当前性格
             currentCharacter = char.name
@@ -129,10 +129,10 @@ function renderCharacterTable(category) {
             // 重新计算属性值
             calculateAttributes()
         })
-        
+
         actionCell.appendChild(selectBtn)
         row.appendChild(actionCell)
-        
+
         characterTableBody.appendChild(row)
     })
 }
@@ -511,3 +511,380 @@ helpModal.addEventListener('click', (e) => {
         helpModal.classList.remove('active')
     }
 })
+
+/* ============ 遗物图鉴 ============ */
+// 遗物数据来源：
+//   - s.61.com 动态加载的数据（relic-data.js，实时抓取 itemRelic 配置表并解密）
+// 字段结构：
+// {
+//   id: 1,                 // 唯一编号
+//   name: '遗物名称',       // 遗物名称
+//   quality: 'special',    // 品质: special(特殊) | red | orange | purple | blue | green
+//   effect: '遗物效果',     // 游戏内实际效果
+//   desc: '官方描述',       // 台词/背景描述
+//   extraDesc: '补充描述',  // 补充描述（可选，由 Data/relic-extra.js 提供）
+//   img: ''                // 遗物图片（可选，无图则显示品质色块）
+// }
+
+// 获取当前可用的遗物数据（来自 s.61.com 动态加载）
+function getRelicData() {
+    return window.getDynamicRelicData ? window.getDynamicRelicData() : []
+}
+
+// 品质配置
+const QUALITY_CONFIG = {
+    special: { label: '特殊', color: '#d4af37' },
+    red: { label: '红色', color: '#ff4d4f' },
+    orange: { label: '橙色', color: '#ff9f43' },
+    purple: { label: '紫色', color: '#b77bff' },
+    blue: { label: '蓝色', color: '#4facfe' },
+    green: { label: '绿色', color: '#2ed573' }
+}
+
+// 图鉴状态
+const tujianView = document.getElementById('tujianView')
+const calculatorView = document.getElementById('calculatorView')
+const developView = document.getElementById('developView')
+const developTitle = document.getElementById('developTitle')
+const developHint = document.getElementById('developHint')
+const relicGrid = document.getElementById('relicGrid')
+const relicPagination = document.getElementById('relicPagination')
+const relicSearch = document.getElementById('relicSearch')
+const qualityFilter = document.getElementById('qualityFilter')
+const tujianTitle = document.getElementById('tujianTitle')
+const mainContainer = document.querySelector('.container')
+
+const PAGE_SIZE = 16
+let currentPage = 1
+let currentQuality = 'all'
+let currentKeyword = ''
+
+// 导航切换视图（涵盖 sidebar 与顶部 nav 的所有可点击项）
+const navAllItems = document.querySelectorAll('.sidebar-item, .sidebar-sub, .sidebar-subsub, .nav-link[data-view]')
+navAllItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+        e.preventDefault()
+        const view = item.dataset.view
+        const project = item.dataset.project || ''
+        setActiveNav(view, project)
+
+        // 关闭移动端侧边栏
+        if (window.innerWidth <= 768) {
+            hamburgerBtn.classList.remove('active')
+            sidebar.classList.remove('active')
+        }
+
+        if (view === 'calculator') {
+            showCalculator()
+        } else if (view === 'relics') {
+            showTujian()
+        } else if (view === 'events' || view === 'endings' || view === 'achievements') {
+            showDevelop(view, project)
+        }
+    })
+})
+
+// 同步高亮导航项（sidebar 与 nav 中 data-view 相同的项一起高亮）
+function setActiveNav(view, project) {
+    navAllItems.forEach(i => {
+        const match = i.dataset.view === view &&
+            (!i.dataset.project || i.dataset.project === project)
+        i.classList.toggle('active', match)
+    })
+}
+
+// 顶部下拉分组：点击展开/收起（配合 hover 使用）
+document.querySelectorAll('.nav-drop > .nav-link').forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        const drop = toggle.parentElement
+        const isOpen = drop.classList.contains('open')
+        // 关闭其他已展开的下拉
+        document.querySelectorAll('.nav-drop.open').forEach(d => d.classList.remove('open'))
+        if (!isOpen) {
+            drop.classList.add('open')
+        }
+    })
+})
+
+// 点击页面其他位置关闭所有下拉
+document.addEventListener('click', () => {
+    document.querySelectorAll('.nav-drop.open').forEach(d => d.classList.remove('open'))
+})
+
+// 显示计算器视图
+function showCalculator() {
+    calculatorView.style.display = 'block'
+    tujianView.style.display = 'none'
+    developView.style.display = 'none'
+    // 计算器视图下容器恢复 50% 宽度
+    mainContainer.classList.remove('tujian-mode')
+    // 计算器视图下隐藏图鉴菜单
+    document.querySelector('.nav-menu').style.display = 'none'
+}
+
+// 显示遗物图鉴视图（遗物共享，无项目区分）
+function showTujian() {
+    tujianTitle.textContent = '遗物图鉴'
+    calculatorView.style.display = 'none'
+    developView.style.display = 'none'
+    tujianView.style.display = 'block'
+    // 太空探索计划视图下容器加宽为 90%
+    mainContainer.classList.add('tujian-mode')
+    // 太空探索计划视图下显示图鉴菜单
+    document.querySelector('.nav-menu').style.display = 'flex'
+    currentPage = 1
+    renderRelics()
+}
+
+// 显示开发中占位视图
+function showDevelop(view, project) {
+    const viewNames = { events: '事件', endings: '结局', achievements: '成就' }
+    const projectNames = { blackhole: '无光黑洞', tower: '铸魂塔' }
+    developTitle.textContent = `${viewNames[view]} · ${projectNames[project] || project}`
+    developHint.textContent = '该模块正在建设中'
+    calculatorView.style.display = 'none'
+    tujianView.style.display = 'none'
+    developView.style.display = 'block'
+    // 太空探索计划视图下容器加宽为 90%
+    mainContainer.classList.add('tujian-mode')
+    // 太空探索计划视图下显示图鉴菜单
+    document.querySelector('.nav-menu').style.display = 'flex'
+}
+
+// 根据关键词和品质过滤遗物
+function filterRelics() {
+    return getRelicData().filter(relic => {
+        const matchKeyword = !currentKeyword ||
+            relic.name.toLowerCase().includes(currentKeyword.toLowerCase())
+        const matchQuality = currentQuality === 'all' || relic.quality === currentQuality
+        return matchKeyword && matchQuality
+    })
+}
+
+// 渲染遗物卡片
+function renderRelicCard(relic) {
+    const card = document.createElement('div')
+    card.className = `relic-card q-${relic.quality}`
+
+    // 父盒子：图标 + 描述文字共用，高度固定为图标高度
+    const top = document.createElement('div')
+    top.className = 'relic-card-top'
+
+    // 图标区（优先显示 s.61.com 实时抓取的图标，无图/加载失败时显示品质色块）
+    const imgArea = document.createElement('div')
+    imgArea.className = 'relic-card-img'
+
+    // ID 标签（方便在 relic-extra.js 中查找对应遗物）
+    const idBadge = document.createElement('span')
+    idBadge.className = 'relic-id-badge'
+    idBadge.textContent = relic.id
+    imgArea.appendChild(idBadge)
+
+    const iconUrl = window.getRelicIconUrl ? window.getRelicIconUrl(relic.id) : ''
+    if (iconUrl) {
+        const img = document.createElement('img')
+        img.src = iconUrl
+        img.alt = relic.name
+        img.loading = 'lazy'
+        img.onerror = () => {
+            imgArea.style.background = QUALITY_CONFIG[relic.quality].color
+            imgArea.style.opacity = '0.25'
+        }
+        imgArea.appendChild(img)
+    } else {
+        imgArea.style.background = QUALITY_CONFIG[relic.quality].color
+        imgArea.style.opacity = '0.25'
+    }
+    top.appendChild(imgArea)
+
+    // 描述文字区（固定在父盒子高度内：名字固定在上，描述文本独立滚动）
+    const info = document.createElement('div')
+    info.className = 'relic-card-info'
+
+    // 名称（字体颜色表示品质，固定在顶部不滚动）
+    const name = document.createElement('div')
+    name.className = 'relic-name'
+    name.textContent = relic.name
+    info.appendChild(name)
+
+    // 描述文本区（仅此区域滚动）
+    const descArea = document.createElement('div')
+    descArea.className = 'relic-card-desc'
+
+    // 官方描述（无描述时省略）
+    if (relic.desc) {
+        const desc = document.createElement('div')
+        desc.className = 'relic-desc'
+        desc.textContent = relic.desc
+        descArea.appendChild(desc)
+    }
+    info.appendChild(descArea)
+    top.appendChild(info)
+
+    // 效果盒子（位于父盒子下方）
+    const effect = document.createElement('div')
+    effect.className = 'relic-card-effect'
+    effect.textContent = relic.effect
+
+    card.appendChild(top)
+    card.appendChild(effect)
+
+    // 点击卡片：弹出遗物详情弹窗（展示效果/描述/补充信息）
+    card.addEventListener('click', () => {
+        openRelicDetail(relic)
+    })
+
+    return card
+}
+
+// 渲染当前页
+function renderRelics() {
+    const filtered = filterRelics()
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE))
+    if (currentPage > totalPages) currentPage = totalPages
+
+    const start = (currentPage - 1) * PAGE_SIZE
+    const pageData = filtered.slice(start, start + PAGE_SIZE)
+
+    relicGrid.innerHTML = ''
+
+    if (pageData.length === 0) {
+        const empty = document.createElement('div')
+        empty.className = 'relic-empty'
+        empty.textContent = '没有找到匹配的遗物'
+        relicGrid.appendChild(empty)
+    } else {
+        pageData.forEach(relic => {
+            relicGrid.appendChild(renderRelicCard(relic))
+        })
+    }
+
+    renderPagination(totalPages)
+}
+
+// 遗物图标映射（relic-icons.js）就绪后刷新当前页，保证图鉴卡片显示实时图标
+if (window.onRelicIconsReady) {
+    window.onRelicIconsReady(() => {
+        if (tujianView && tujianView.style.display !== 'none') {
+            renderRelics()
+        }
+    })
+}
+
+// 动态遗物数据（relic-data.js）就绪后刷新当前页，用实时数据替换静态兜底
+if (window.onRelicDataReady) {
+    window.onRelicDataReady(() => {
+        if (tujianView && tujianView.style.display !== 'none') {
+            renderRelics()
+        }
+    })
+}
+
+/* ============ 遗物详情弹窗 ============ */
+const relicDetailModal = document.getElementById('relicDetailModal')
+const relicDetailTitle = document.getElementById('relicDetailTitle')
+const relicDetailExtra = document.getElementById('relicDetailExtra')
+
+// 打开遗物详情弹窗（展示效果/官方描述/补充信息，样式类似计算器帮助弹窗）
+function openRelicDetail(relic) {
+    const quality = QUALITY_CONFIG[relic.quality]
+    relicDetailTitle.textContent = relic.name
+    relicDetailTitle.style.color = quality ? quality.color : '#fff'
+
+    // 补充信息来自 Data/relic-extra.js（可编辑）
+    const extra = (typeof relicExtra !== 'undefined' && relicExtra) ? (relicExtra[relic.id] || '') : ''
+    relicDetailExtra.textContent = extra || '暂无补充信息'
+
+    relicDetailModal.classList.add('active')
+}
+
+// 点击遮罩或关闭按钮关闭遗物详情弹窗
+relicDetailModal.addEventListener('click', (e) => {
+    if (e.target === relicDetailModal || e.target.classList.contains('modal-close')) {
+        relicDetailModal.classList.remove('active')
+    }
+})
+
+// 渲染分页
+function renderPagination(totalPages) {
+    relicPagination.innerHTML = ''
+
+    if (totalPages <= 1) return
+
+    // 上一页
+    const prevBtn = createPageBtn('上一页', currentPage - 1, currentPage === 1)
+    relicPagination.appendChild(prevBtn)
+
+    // 页码（含省略号逻辑）
+    const pages = getPageRange(currentPage, totalPages)
+    pages.forEach(p => {
+        if (p === '...') {
+            const ellipsis = document.createElement('span')
+            ellipsis.className = 'page-ellipsis'
+            ellipsis.textContent = '…'
+            relicPagination.appendChild(ellipsis)
+        } else {
+            relicPagination.appendChild(createPageBtn(p, p, p === currentPage))
+        }
+    })
+
+    // 下一页
+    const nextBtn = createPageBtn('下一页', currentPage + 1, currentPage === totalPages)
+    relicPagination.appendChild(nextBtn)
+}
+
+// 创建分页按钮
+function createPageBtn(text, page, isDisabled) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'page-btn'
+    btn.textContent = text
+    btn.disabled = isDisabled
+    if (!isDisabled) {
+        btn.addEventListener('click', () => {
+            currentPage = page
+            renderRelics()
+        })
+    }
+    return btn
+}
+
+// 计算页码范围（首尾页码 + 当前页前后，超出用省略号）
+function getPageRange(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const pages = new Set([1, total, current - 1, current, current + 1])
+    const sorted = [...pages].filter(p => p >= 1 && p <= total).sort((a, b) => a - b)
+    const result = []
+    let prev = 0
+    sorted.forEach(p => {
+        if (p - prev > 1) result.push('...')
+        result.push(p)
+        prev = p
+    })
+    return result
+}
+
+// 搜索输入
+relicSearch.addEventListener('input', () => {
+    currentKeyword = relicSearch.value.trim()
+    currentPage = 1
+    renderRelics()
+})
+
+// 品质筛选
+qualityFilter.addEventListener('click', (e) => {
+    const btn = e.target.closest('.quality-btn')
+    if (!btn) return
+    qualityFilter.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    currentQuality = btn.dataset.quality
+    currentPage = 1
+    renderRelics()
+})
+
+// 页面初始化：遗物图鉴作为默认展示页面
+showTujian()

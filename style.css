@@ -14,15 +14,47 @@ body {
     min-height: 100vh;
 }
 
-/* 左侧边栏 */
+/* 全局滚动条样式：隐藏上下箭头与白色背景轨道，仅保留细长的滑块（全局只有一个滚动条） */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(23, 88, 141, 0.6);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(23, 88, 141, 0.9);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* 左侧边栏（固定定位，不随页面滚动） */
 .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 220px;
+    height: 100vh;
     background-color: #fff;
-    flex-shrink: 0;
+    z-index: 100;
     display: flex;
     flex-direction: column;
-    position: relative;
-    z-index: 1;
+    overflow-y: auto;
 }
 
 .sidebar-header {
@@ -78,8 +110,51 @@ body {
     color: #333;
 }
 
+/* 太空探索计划下的子导航项 */
+.sidebar-sub {
+    padding: 10px 20px 4px 20px;
+    font-size: 14px;
+    color: #0380ba;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.sidebar-sub:hover,
+.sidebar-sub.active {
+    background-color: #e6f4fb;
+    color: #0380ba;
+}
+
+/* 子导航分类标题（事件/结局/成就） */
+.sidebar-subhead {
+    padding: 8px 20px 4px 30px;
+    font-size: 12px;
+    color: #999;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+/* 子导航子项（无光黑洞/铸魂塔） */
+.sidebar-subsub {
+    display: block;
+    padding: 8px 20px 8px 40px;
+    color: #666;
+    text-decoration: none;
+    font-size: 13px;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.sidebar-subsub:hover,
+.sidebar-subsub.active {
+    background-color: #e6f4fb;
+    color: #0380ba;
+}
+
 .main-content {
     flex: 1;
+    margin-left: 220px;
     position: relative;
     z-index: 1;
     overflow-x: auto;
@@ -95,6 +170,90 @@ body {
     justify-content: flex-start;
     align-items: center;
     padding: 0 15px;
+    box-sizing: border-box;
+    position: relative;
+}
+
+/* 顶部导航菜单（图鉴：遗物/事件/结局/成就） */
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: 10px;
+}
+
+.nav-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 14px;
+    color: #9cb6d2;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.nav-link:hover {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nav-link.active {
+    color: #e4ac26;
+    font-weight: bold;
+    background-color: rgba(228, 172, 38, 0.12);
+}
+
+/* 下拉分组 */
+.nav-drop {
+    position: relative;
+}
+
+.nav-drop-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 120px;
+    background-color: #083356;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    padding: 4px 0;
+    z-index: 200;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* 悬停桥接：在父项与子菜单之间建立无缝过渡区，
+   鼠标从「无光黑洞/铸魂塔」文字滑向子菜单时悬停不会因空隙而丢失 */
+.nav-drop-menu::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+}
+
+.nav-drop:hover .nav-drop-menu,
+.nav-drop:focus-within .nav-drop-menu,
+.nav-drop.open .nav-drop-menu {
+    display: block;
+}
+
+.nav-drop-menu .nav-link {
+    display: block;
+    padding: 8px 16px;
+    border-radius: 0;
+}
+
+.nav-drop-menu .nav-link:hover {
+    background-color: rgba(3, 128, 186, 0.25);
+}
+
+.nav-drop-menu .nav-link.active {
+    background-color: rgba(228, 172, 38, 0.15);
 }
 
 /* 汉堡菜单按钮 */
@@ -141,7 +300,15 @@ body {
     position: relative;
     top: 50px;
     border-radius: 15px;
+    box-sizing: border-box;
 }
+
+/* 太空探索计划视图下容器加宽为 90%（不影响计算器布局） */
+.container.tujian-mode {
+    width: 90%;
+}
+
+/* 开发中占位视图（横向居中） */
 
 /* 弹窗样式 */
 .modal-overlay {
@@ -183,6 +350,42 @@ body {
     font-size: 24px;
     cursor: pointer;
     color: #666;
+}
+
+/* 遗物详情弹窗（样式类似计算器帮助弹窗） */
+.relic-detail-content {
+    width: 42%;
+    max-width: 560px;
+    max-height: 80vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.relic-detail-title {
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+}
+
+.relic-detail-section {
+    margin-bottom: 14px;
+}
+
+.relic-detail-label {
+    color: #5181a1;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.relic-detail-text {
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.7;
+    white-space: pre-line;
 }
 
 /* 选择性格按钮样式 */
@@ -353,6 +556,7 @@ body {
     /* 主内容占满宽度 */
     .main-content {
         width: 100%;
+        margin-left: 0;
     }
 
     /* 容器样式调整 */
@@ -549,6 +753,7 @@ body {
     /* 主内容占满宽度 */
     .main-content {
         width: 100%;
+        margin-left: 0;
     }
 
     /* 容器样式调整 */
@@ -1402,4 +1607,416 @@ h2 {
 
 .confirm-btn:hover {
     background-color: #026a9a;
+}
+
+/* ============ 图鉴视图 ============ */
+/* 图鉴视图内部滚动（不随页面整体滚动）；标题与工具栏吸顶固定在顶部不滚动 */
+.tujian-view {
+    margin-top: 5px;
+    max-height: calc(100vh - 50px - 90px);
+    overflow-y: auto;
+}
+
+/* 固定区：标题 + 工具栏，滚动过程中吸顶位置不变 */
+/* overflow:hidden 建立 BFC，防止内部标题 margin-top 折叠导致吸顶偏移 */
+.tujian-fixed {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    overflow: hidden;
+    background-color: rgba(8, 51, 86, 0.98);
+}
+
+/* 滚动区：遗物网格 + 分页，仅此区域随滚动移动 */
+.tujian-scroll {
+    /* 占满剩余宽度 */
+    min-width: 0;
+}
+
+/* 图鉴标题 */
+.tujian-header {
+    text-align: center;
+    margin: 7px 0 12px;
+}
+
+.tujian-header h2 {
+    margin: 0;
+    color: #e4ac26;
+    font-size: 18px;
+    letter-spacing: 2px;
+}
+
+/* 工具栏（搜索 + 品质筛选） */
+.tujian-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
+}
+
+/* 搜索框 */
+.relic-search {
+    width: 220px;
+    padding: 8px 12px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    background-color: #083356;
+    color: #5181a1;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.relic-search::placeholder {
+    color: #4a6f8a;
+}
+
+.relic-search:focus {
+    border-color: #0380ba;
+}
+
+/* 品质筛选按钮组 */
+.quality-filter {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.quality-btn {
+    padding: 6px 12px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    background: transparent;
+    color: #5181a1;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quality-btn:hover {
+    border-color: #0380ba;
+    color: #0380ba;
+}
+
+.quality-btn.active {
+    border-color: #0380ba;
+    background-color: #0380ba;
+    color: #fff;
+}
+
+/* 遗物卡片网格：每行 4 个单元格，每个占容器 23%，剩余空间作为间隙 */
+.relic-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 24.5%);
+    gap: 5px;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+/* 遗物卡片：上下布局，父盒子在上，效果盒子在下 */
+.relic-card {
+    background-color: #083356;
+    border: 1px solid #17588d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    /* 开启过渡，动画顺滑 */
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.relic-card:hover {
+    transform: translateY(-3px);
+    /* 向上浮起 */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+}
+
+
+/* 品质颜色 - 通过遗物名称的字体颜色表示品质 */
+.relic-card.q-special .relic-name {
+    color: #d4af37;
+}
+
+.relic-card.q-red .relic-name {
+    color: #ff4d4f;
+}
+
+.relic-card.q-orange .relic-name {
+    color: #ff9f43;
+}
+
+.relic-card.q-purple .relic-name {
+    color: #b77bff;
+}
+
+.relic-card.q-blue .relic-name {
+    color: #4facfe;
+}
+
+.relic-card.q-green .relic-name {
+    color: #2ed573;
+}
+
+/* 图标盒子边框颜色 - 与遗物品质对应 */
+.relic-card.q-special .relic-card-img {
+    border: 2px solid #d4af37;
+}
+
+.relic-card.q-red .relic-card-img {
+    border: 2px solid #ff4d4f;
+}
+
+.relic-card.q-orange .relic-card-img {
+    border: 2px solid #ff9f43;
+}
+
+.relic-card.q-purple .relic-card-img {
+    border: 2px solid #b77bff;
+}
+
+.relic-card.q-blue .relic-card-img {
+    border: 2px solid #4facfe;
+}
+
+.relic-card.q-green .relic-card-img {
+    border: 2px solid #2ed573;
+}
+
+/* 父盒子：图标 + 描述文字共用，高度固定为图标高度（64px） */
+.relic-card-top {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 10px;
+    height: 64px;
+}
+
+/* 卡片图片区：盒子与图标大小一致（64×64），不缩放；边框含在盒内 */
+.relic-card-img {
+    position: relative;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.06);
+}
+
+.relic-card-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* ID 标签：显示在图标右上角，方便在 relic-extra.js 中查找对应遗物 */
+.relic-id-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    z-index: 2;
+    padding: 0 4px;
+    font-size: 10px;
+    line-height: 14px;
+    color: #fff;
+    background: rgba(23, 88, 141, 0.85);
+    border-radius: 3px;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* 描述文字区：固定在父盒子高度内（64px），名字固定在上，描述文本独立滚动 */
+.relic-card-info {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* 遗物名称：字体颜色表示品质，始终固定在顶部不滚动 */
+.relic-name {
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* 描述文本区：仅此区域滚动，名字位置不变 */
+.relic-card-desc {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* 官方描述 */
+.relic-desc {
+    color: #a9c4d8;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* 效果盒子：位于父盒子下方 */
+.relic-card-effect {
+    color: #4facfe;
+    font-size: 12px;
+    line-height: 1.5;
+    border-top: 1px solid rgba(23, 88, 141, 0.4);
+    padding-top: 6px;
+}
+
+/* 补充描述 */
+.relic-extra {
+    color: #2ed573;
+    font-size: 12px;
+    line-height: 1.5;
+    background-color: rgba(46, 213, 115, 0.08);
+    border-radius: 4px;
+    padding: 5px 8px;
+}
+
+.relic-extra::before {
+    content: "补充：";
+    color: #2ed573;
+    font-weight: bold;
+}
+
+/* 空状态 */
+.relic-empty {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #5181a1;
+    padding: 40px 0;
+    font-size: 14px;
+}
+
+/* 分页 */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+}
+
+.page-btn {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 8px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    background: transparent;
+    color: #5181a1;
+    font-family: 'SiYuanHeiTi', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.page-btn:hover {
+    border-color: #0380ba;
+    color: #0380ba;
+}
+
+.page-btn.active {
+    border-color: #0380ba;
+    background-color: #0380ba;
+    color: #fff;
+}
+
+.page-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.page-ellipsis {
+    color: #5181a1;
+    padding: 0 2px;
+}
+
+/* 图鉴移动端适配 */
+@media (max-width: 768px) {
+    .relic-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    /* 移动端改回上下布局：图标在上居中，文字在下 */
+    .relic-card {
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .relic-card-img {
+        width: 64px;
+        height: 64px;
+    }
+
+    .relic-card-info {
+        width: 100%;
+        flex: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .relic-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .relic-search {
+        width: 100%;
+    }
+
+    .relic-card-img {
+        width: 64px;
+        height: 64px;
+    }
+}
+
+/* 开发中占位视图 */
+.develop-view {
+    margin-top: 5px;
+}
+
+.develop-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    text-align: center;
+    gap: 12px;
+}
+
+.develop-content h2 {
+    margin: 0;
+    color: #e4ac26;
+    font-size: 20px;
+    letter-spacing: 2px;
+}
+
+.develop-content p {
+    margin: 0;
+    color: #5181a1;
+    font-size: 14px;
 }
