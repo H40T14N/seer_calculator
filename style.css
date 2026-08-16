@@ -303,9 +303,18 @@ body {
     box-sizing: border-box;
 }
 
-/* 太空探索计划视图下容器加宽为 90%（不影响计算器布局） */
+/* 太空探索计划视图下容器加宽为 90%，并垂直居中内容（不影响计算器布局）
+   top/margin/padding-bottom 覆盖基础值：使容器上(导航栏下方)与下方的留白对称、
+   且内容区无底部内边距偏差，保证在导航栏以下的剩余高度内精确垂直居中 */
 .container.tujian-mode {
     width: 90%;
+    min-height: calc(100vh - 50px - 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 10px auto;
+    top: 10px;
+    padding-bottom: 0;
 }
 
 /* 开发中占位视图（横向居中） */
@@ -1612,7 +1621,7 @@ h2 {
 /* ============ 图鉴视图 ============ */
 /* 图鉴视图内部滚动（不随页面整体滚动）；标题与工具栏吸顶固定在顶部不滚动 */
 .tujian-view {
-    margin-top: 5px;
+    margin-top: 0;
     max-height: calc(100vh - 50px - 90px);
     overflow-y: auto;
 }
@@ -1871,6 +1880,7 @@ h2 {
     color: #a9c4d8;
     font-size: 12px;
     line-height: 1.5;
+    white-space: pre-line;
 }
 
 /* 效果盒子：位于父盒子下方 */
@@ -1878,6 +1888,7 @@ h2 {
     color: #4facfe;
     font-size: 12px;
     line-height: 1.5;
+    white-space: pre-line;
     border-top: 1px solid rgba(23, 88, 141, 0.4);
     padding-top: 6px;
 }

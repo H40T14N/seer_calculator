@@ -4,14 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>属性值计算器</title>
+    <title>莫比迪克 赛尔号启航︿(￣︶￣)︿</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
     <!-- 左侧导航 -->
     <nav class="sidebar">
-        <div class="sidebar-header">赛尔计算器</div>
+        <div class="sidebar-header">莫比迪克</div>
         <div class="sidebar-nav">
             <a href="#" class="sidebar-item active" data-view="relics">
                 <span class="sidebar-icon"><img src="Assets/icon/tujian.svg" alt="太空探索计划"></span>
@@ -336,6 +336,46 @@
                 </div>
             </div>
 
+            <!-- 魂印图鉴视图（无光黑洞） -->
+            <div id="soulsealView" class="tujian-view" style="display: none;">
+                <div class="tujian-fixed">
+                    <div class="tujian-header">
+                        <h2 id="soulsealTitle">无光黑洞 · 魂印图鉴</h2>
+                    </div>
+                    <div class="tujian-toolbar">
+                        <input type="text" id="soulsealSearch" class="relic-search" placeholder="搜索魂印名称...">
+                    </div>
+                </div>
+                <div class="tujian-scroll">
+                    <div class="relic-grid" id="soulsealGrid"></div>
+                    <div class="pagination" id="soulsealPagination"></div>
+                </div>
+            </div>
+
+            <!-- 增益图鉴视图（铸魂塔） -->
+            <div id="zengyiView" class="tujian-view" style="display: none;">
+                <div class="tujian-fixed">
+                    <div class="tujian-header">
+                        <h2 id="zengyiTitle">铸魂塔 · 增益图鉴</h2>
+                    </div>
+                    <div class="tujian-toolbar">
+                        <input type="text" id="zengyiSearch" class="relic-search" placeholder="搜索增益名称...">
+                        <div class="quality-filter" id="zengyiQualityFilter">
+                            <button type="button" class="quality-btn active" data-quality="all">全部</button>
+                            <button type="button" class="quality-btn" data-quality="red">红</button>
+                            <button type="button" class="quality-btn" data-quality="orange">橙</button>
+                            <button type="button" class="quality-btn" data-quality="purple">紫</button>
+                            <button type="button" class="quality-btn" data-quality="blue">蓝</button>
+                            <button type="button" class="quality-btn" data-quality="green">绿</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="tujian-scroll">
+                    <div class="relic-grid" id="zengyiGrid"></div>
+                    <div class="pagination" id="zengyiPagination"></div>
+                </div>
+            </div>
+
             <!-- 开发中占位视图 -->
             <div id="developView" class="develop-view" style="display: none;">
                 <div class="develop-content">
@@ -454,6 +494,10 @@
     <script src="Data/relic-icons.js"></script>
     <script src="Data/relic-data.js"></script>
     <script src="Data/relic-desc.js"></script>
+    <script src="Data/soulseal-icons.js"></script>
+    <script src="Data/soulseal-data.js"></script>
+    <script src="Data/zengyi-icons.js"></script>
+    <script src="Data/zengyi-data.js"></script>
     <script src="main.js"></script>
 </body>
 

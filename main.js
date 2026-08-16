@@ -554,10 +554,34 @@ const qualityFilter = document.getElementById('qualityFilter')
 const tujianTitle = document.getElementById('tujianTitle')
 const mainContainer = document.querySelector('.container')
 
+// 魂印图鉴状态
+const soulsealView = document.getElementById('soulsealView')
+const soulsealGrid = document.getElementById('soulsealGrid')
+const soulsealPagination = document.getElementById('soulsealPagination')
+const soulsealSearch = document.getElementById('soulsealSearch')
+const soulsealTitle = document.getElementById('soulsealTitle')
+
+// 增益图鉴状态（铸魂塔）
+const zengyiView = document.getElementById('zengyiView')
+const zengyiGrid = document.getElementById('zengyiGrid')
+const zengyiPagination = document.getElementById('zengyiPagination')
+const zengyiSearch = document.getElementById('zengyiSearch')
+const zengyiTitle = document.getElementById('zengyiTitle')
+const zengyiQualityFilter = document.getElementById('zengyiQualityFilter')
+
 const PAGE_SIZE = 16
 let currentPage = 1
 let currentQuality = 'all'
 let currentKeyword = ''
+
+const SOULSEAL_PAGE_SIZE = 16
+let soulsealCurrentPage = 1
+let soulsealKeyword = ''
+
+const ZENGYI_PAGE_SIZE = 16
+let zengyiCurrentPage = 1
+let zengyiKeyword = ''
+let zengyiQuality = 'all'
 
 // 导航切换视图（涵盖 sidebar 与顶部 nav 的所有可点击项）
 const navAllItems = document.querySelectorAll('.sidebar-item, .sidebar-sub, .sidebar-subsub, .nav-link[data-view]')
@@ -578,6 +602,10 @@ navAllItems.forEach(item => {
             showCalculator()
         } else if (view === 'relics') {
             showTujian()
+        } else if (view === 'hunyin') {
+            showSoulseal()
+        } else if (view === 'zengyi') {
+            showZengyi()
         } else if (view === 'events' || view === 'endings' || view === 'achievements') {
             showDevelop(view, project)
         }
@@ -608,6 +636,41 @@ document.querySelectorAll('.nav-drop > .nav-link').forEach(toggle => {
     })
 })
 
+// 点击下拉菜单中的子项：保持所属下拉展开（防止鼠标移开菜单盒时菜单随之隐藏）
+document.querySelectorAll('.nav-drop-menu .nav-link').forEach(sub => {
+    sub.addEventListener('click', (e) => {
+        e.stopPropagation()
+        const drop = sub.closest('.nav-drop')
+        // 关闭其他已展开的下拉
+        document.querySelectorAll('.nav-drop.open').forEach(d => d.classList.remove('open'))
+        if (drop) drop.classList.add('open')
+    })
+})
+
+// 鼠标移入下拉子菜单盒：钉住所属下拉展开（防止鼠标在父项与子菜单间移动时菜单闪烁隐藏）
+document.querySelectorAll('.nav-drop-menu').forEach(menu => {
+    menu.addEventListener('mouseenter', () => {
+        const drop = menu.closest('.nav-drop')
+        if (!drop) return
+        // 关闭其他已展开的下拉
+        document.querySelectorAll('.nav-drop.open').forEach(d => d.classList.remove('open'))
+        drop.classList.add('open')
+    })
+})
+
+// 鼠标在页面上移动：用鼠标屏幕坐标下的真实元素判断是否已离开下拉区域，离开即自动收起。
+// 使用 mousemove（每次移动必然触发）+ elementFromPoint（实时取坐标下元素），
+// 比 mouseover/mouseleave 更可靠——不受是否跨越元素边界、布局变化、快速移动的影响。
+document.addEventListener('mousemove', (e) => {
+    if (!document.querySelector('.nav-drop.open')) return
+    const target = document.elementFromPoint(e.clientX, e.clientY)
+    document.querySelectorAll('.nav-drop.open').forEach(d => {
+        if (!target || !d.contains(target)) {
+            d.classList.remove('open')
+        }
+    })
+})
+
 // 点击页面其他位置关闭所有下拉
 document.addEventListener('click', () => {
     document.querySelectorAll('.nav-drop.open').forEach(d => d.classList.remove('open'))
@@ -617,6 +680,8 @@ document.addEventListener('click', () => {
 function showCalculator() {
     calculatorView.style.display = 'block'
     tujianView.style.display = 'none'
+    soulsealView.style.display = 'none'
+    zengyiView.style.display = 'none'
     developView.style.display = 'none'
     // 计算器视图下容器恢复 50% 宽度
     mainContainer.classList.remove('tujian-mode')
@@ -624,10 +689,435 @@ function showCalculator() {
     document.querySelector('.nav-menu').style.display = 'none'
 }
 
+// 显示魂印图鉴视图（无光黑洞）
+function showSoulseal() {
+    calculatorView.style.display = 'none'
+    tujianView.style.display = 'none'
+    zengyiView.style.display = 'none'
+    developView.style.display = 'none'
+    soulsealView.style.display = 'block'
+    mainContainer.classList.add('tujian-mode')
+    document.querySelector('.nav-menu').style.display = 'flex'
+    soulsealCurrentPage = 1
+    renderSoulseals()
+}
+
+// 显示增益图鉴视图（铸魂塔）
+function showZengyi() {
+    calculatorView.style.display = 'none'
+    tujianView.style.display = 'none'
+    soulsealView.style.display = 'none'
+    developView.style.display = 'none'
+    zengyiView.style.display = 'block'
+    mainContainer.classList.add('tujian-mode')
+    document.querySelector('.nav-menu').style.display = 'flex'
+    zengyiCurrentPage = 1
+    renderZengyis()
+}
+
+// 获取魂印数据
+function getSoulSealData() {
+    return window.getDynamicSoulSealData ? window.getDynamicSoulSealData() : []
+}
+
+// 过滤魂印
+function filterSoulseals() {
+    return getSoulSealData().filter(soul => {
+        return !soulsealKeyword ||
+            soul.name.toLowerCase().includes(soulsealKeyword.toLowerCase())
+    })
+}
+
+// 将描述/效果文本中的字面 \n 转义为真实换行（源数据以反斜杠 n 存储换行符）
+function formatText(text) {
+    return text ? text.replace(/\\n/g, '\n') : text
+}
+
+// 渲染魂印卡片
+function renderSoulsealCard(soul) {
+    const card = document.createElement('div')
+    card.className = 'relic-card q-red'
+
+    // 父盒子：图标 + 描述文字
+    const top = document.createElement('div')
+    top.className = 'relic-card-top'
+
+    // 图标区
+    const imgArea = document.createElement('div')
+    imgArea.className = 'relic-card-img'
+
+    // ID 标签
+    const idBadge = document.createElement('span')
+    idBadge.className = 'relic-id-badge'
+    idBadge.textContent = soul.id
+    imgArea.appendChild(idBadge)
+
+    const iconUrl = window.getSoulSealIconUrl ? window.getSoulSealIconUrl(soul.id) : ''
+    if (iconUrl) {
+        const img = document.createElement('img')
+        img.src = iconUrl
+        img.alt = soul.name
+        img.loading = 'lazy'
+        img.onerror = () => {
+            imgArea.style.background = '#ff4d4f'
+            imgArea.style.opacity = '0.25'
+        }
+        imgArea.appendChild(img)
+    } else {
+        imgArea.style.background = '#ff4d4f'
+        imgArea.style.opacity = '0.25'
+    }
+    top.appendChild(imgArea)
+
+    // 描述文字区
+    const info = document.createElement('div')
+    info.className = 'relic-card-info'
+
+    const name = document.createElement('div')
+    name.className = 'relic-name'
+    name.textContent = soul.name
+    info.appendChild(name)
+
+    const descArea = document.createElement('div')
+    descArea.className = 'relic-card-desc'
+
+    if (soul.desc) {
+        const desc = document.createElement('div')
+        desc.className = 'relic-desc'
+        desc.textContent = formatText(soul.desc)
+        descArea.appendChild(desc)
+    }
+    info.appendChild(descArea)
+    top.appendChild(info)
+
+    // 效果盒子
+    const effect = document.createElement('div')
+    effect.className = 'relic-card-effect'
+    effect.textContent = formatText(soul.effect)
+
+    card.appendChild(top)
+    card.appendChild(effect)
+
+    return card
+}
+
+// 渲染当前页魂印
+function renderSoulseals() {
+    const filtered = filterSoulseals()
+    const totalPages = Math.max(1, Math.ceil(filtered.length / SOULSEAL_PAGE_SIZE))
+    if (soulsealCurrentPage > totalPages) soulsealCurrentPage = totalPages
+
+    const start = (soulsealCurrentPage - 1) * SOULSEAL_PAGE_SIZE
+    const pageData = filtered.slice(start, start + SOULSEAL_PAGE_SIZE)
+
+    soulsealGrid.innerHTML = ''
+
+    if (pageData.length === 0) {
+        const empty = document.createElement('div')
+        empty.className = 'relic-empty'
+        empty.textContent = '没有找到匹配的魂印'
+        soulsealGrid.appendChild(empty)
+    } else {
+        pageData.forEach(soul => {
+            soulsealGrid.appendChild(renderSoulsealCard(soul))
+        })
+    }
+
+    renderSoulsealPagination(totalPages)
+}
+
+// 渲染魂印分页
+function renderSoulsealPagination(totalPages) {
+    soulsealPagination.innerHTML = ''
+
+    if (totalPages <= 1) return
+
+    const prevBtn = createPageBtnSoulseal('上一页', soulsealCurrentPage - 1, soulsealCurrentPage === 1, false)
+    soulsealPagination.appendChild(prevBtn)
+
+    const pages = getPageRangeSoulseal(soulsealCurrentPage, totalPages)
+    pages.forEach(p => {
+        if (p === '...') {
+            const ellipsis = document.createElement('span')
+            ellipsis.className = 'page-ellipsis'
+            ellipsis.textContent = '…'
+            soulsealPagination.appendChild(ellipsis)
+        } else {
+            soulsealPagination.appendChild(createPageBtnSoulseal(p, p, false, p === soulsealCurrentPage))
+        }
+    })
+
+    const nextBtn = createPageBtnSoulseal('下一页', soulsealCurrentPage + 1, soulsealCurrentPage === totalPages, false)
+    soulsealPagination.appendChild(nextBtn)
+}
+
+function createPageBtnSoulseal(text, page, isDisabled, isActive) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'page-btn'
+    btn.textContent = text
+    if (isActive) btn.classList.add('active')
+    btn.disabled = isDisabled
+    if (!isDisabled) {
+        btn.addEventListener('click', () => {
+            soulsealCurrentPage = page
+            renderSoulseals()
+        })
+    }
+    return btn
+}
+
+function getPageRangeSoulseal(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const pages = new Set([1, total, current - 1, current, current + 1])
+    const sorted = [...pages].filter(p => p >= 1 && p <= total).sort((a, b) => a - b)
+    const result = []
+    let prev = 0
+    sorted.forEach(p => {
+        if (p - prev > 1) result.push('...')
+        result.push(p)
+        prev = p
+    })
+    return result
+}
+
+// 魂印搜索输入
+soulsealSearch.addEventListener('input', () => {
+    soulsealKeyword = soulsealSearch.value.trim()
+    soulsealCurrentPage = 1
+    renderSoulseals()
+})
+
+// 魂印图标映射就绪后刷新
+if (window.onSoulSealIconsReady) {
+    window.onSoulSealIconsReady(() => {
+        if (soulsealView && soulsealView.style.display !== 'none') {
+            renderSoulseals()
+        }
+    })
+}
+
+// 魂印数据就绪后刷新
+if (window.onSoulSealDataReady) {
+    window.onSoulSealDataReady(() => {
+        if (soulsealView && soulsealView.style.display !== 'none') {
+            renderSoulseals()
+        }
+    })
+}
+
+// ============ 增益图鉴渲染（铸魂塔） ============
+
+// 获取增益数据
+function getZengyiData() {
+    return window.getDynamicZengyiData ? window.getDynamicZengyiData() : []
+}
+
+// 过滤增益
+function filterZengyis() {
+    return getZengyiData().filter(gain => {
+        const matchKeyword = !zengyiKeyword ||
+            gain.name.toLowerCase().includes(zengyiKeyword.toLowerCase())
+        const matchQuality = zengyiQuality === 'all' || gain.quality === zengyiQuality
+        return matchKeyword && matchQuality
+    })
+}
+
+// 渲染增益卡片
+function renderZengyiCard(gain) {
+    const card = document.createElement('div')
+    card.className = 'relic-card q-' + gain.quality
+
+    // 父盒子：图标 + 描述文字
+    const top = document.createElement('div')
+    top.className = 'relic-card-top'
+
+    // 图标区
+    const imgArea = document.createElement('div')
+    imgArea.className = 'relic-card-img'
+
+    // ID 标签
+    const idBadge = document.createElement('span')
+    idBadge.className = 'relic-id-badge'
+    idBadge.textContent = gain.id
+    imgArea.appendChild(idBadge)
+
+    const iconUrl = window.getZengyiIconUrl ? window.getZengyiIconUrl(gain.id) : ''
+    if (iconUrl) {
+        const img = document.createElement('img')
+        img.src = iconUrl
+        img.alt = gain.name
+        img.loading = 'lazy'
+        img.onerror = () => {
+            imgArea.style.background = QUALITY_CONFIG[gain.quality] ? QUALITY_CONFIG[gain.quality].color : '#2ed573'
+            imgArea.style.opacity = '0.25'
+        }
+        imgArea.appendChild(img)
+    } else {
+        const qc = QUALITY_CONFIG[gain.quality]
+        imgArea.style.background = qc ? qc.color : '#2ed573'
+        imgArea.style.opacity = '0.25'
+    }
+    top.appendChild(imgArea)
+
+    // 描述文字区
+    const info = document.createElement('div')
+    info.className = 'relic-card-info'
+
+    const name = document.createElement('div')
+    name.className = 'relic-name'
+    name.textContent = gain.name
+    info.appendChild(name)
+
+    const descArea = document.createElement('div')
+    descArea.className = 'relic-card-desc'
+
+    if (gain.desc) {
+        const desc = document.createElement('div')
+        desc.className = 'relic-desc'
+        desc.textContent = formatText(gain.desc)
+        descArea.appendChild(desc)
+    }
+    info.appendChild(descArea)
+    top.appendChild(info)
+
+    // 效果盒子
+    const effect = document.createElement('div')
+    effect.className = 'relic-card-effect'
+    effect.textContent = formatText(gain.effect)
+
+    card.appendChild(top)
+    card.appendChild(effect)
+
+    return card
+}
+
+// 渲染当前页增益
+function renderZengyis() {
+    const filtered = filterZengyis()
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ZENGYI_PAGE_SIZE))
+    if (zengyiCurrentPage > totalPages) zengyiCurrentPage = totalPages
+
+    const start = (zengyiCurrentPage - 1) * ZENGYI_PAGE_SIZE
+    const pageData = filtered.slice(start, start + ZENGYI_PAGE_SIZE)
+
+    zengyiGrid.innerHTML = ''
+
+    if (pageData.length === 0) {
+        const empty = document.createElement('div')
+        empty.className = 'relic-empty'
+        empty.textContent = '没有找到匹配的增益'
+        zengyiGrid.appendChild(empty)
+    } else {
+        pageData.forEach(gain => {
+            zengyiGrid.appendChild(renderZengyiCard(gain))
+        })
+    }
+
+    renderZengyiPagination(totalPages)
+}
+
+// 渲染增益分页
+function renderZengyiPagination(totalPages) {
+    zengyiPagination.innerHTML = ''
+
+    if (totalPages <= 1) return
+
+    const prevBtn = createPageBtnZengyi('上一页', zengyiCurrentPage - 1, zengyiCurrentPage === 1, false)
+    zengyiPagination.appendChild(prevBtn)
+
+    const pages = getPageRangeZengyi(zengyiCurrentPage, totalPages)
+    pages.forEach(p => {
+        if (p === '...') {
+            const ellipsis = document.createElement('span')
+            ellipsis.className = 'page-ellipsis'
+            ellipsis.textContent = '…'
+            zengyiPagination.appendChild(ellipsis)
+        } else {
+            zengyiPagination.appendChild(createPageBtnZengyi(p, p, false, p === zengyiCurrentPage))
+        }
+    })
+
+    const nextBtn = createPageBtnZengyi('下一页', zengyiCurrentPage + 1, zengyiCurrentPage === totalPages, false)
+    zengyiPagination.appendChild(nextBtn)
+}
+
+function createPageBtnZengyi(text, page, isDisabled, isActive) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'page-btn'
+    btn.textContent = text
+    if (isActive) btn.classList.add('active')
+    btn.disabled = isDisabled
+    if (!isDisabled) {
+        btn.addEventListener('click', () => {
+            zengyiCurrentPage = page
+            renderZengyis()
+        })
+    }
+    return btn
+}
+
+function getPageRangeZengyi(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const pages = new Set([1, total, current - 1, current, current + 1])
+    const sorted = [...pages].filter(p => p >= 1 && p <= total).sort((a, b) => a - b)
+    const result = []
+    let prev = 0
+    sorted.forEach(p => {
+        if (p - prev > 1) result.push('...')
+        result.push(p)
+        prev = p
+    })
+    return result
+}
+
+// 增益搜索输入
+zengyiSearch.addEventListener('input', () => {
+    zengyiKeyword = zengyiSearch.value.trim()
+    zengyiCurrentPage = 1
+    renderZengyis()
+})
+
+// 增益品质筛选
+zengyiQualityFilter.addEventListener('click', (e) => {
+    const btn = e.target.closest('.quality-btn')
+    if (!btn) return
+    zengyiQualityFilter.querySelectorAll('.quality-btn').forEach(b => b.classList.remove('active'))
+    btn.classList.add('active')
+    zengyiQuality = btn.dataset.quality
+    zengyiCurrentPage = 1
+    renderZengyis()
+})
+
+// 增益图标映射就绪后刷新
+if (window.onZengyiIconsReady) {
+    window.onZengyiIconsReady(() => {
+        if (zengyiView && zengyiView.style.display !== 'none') {
+            renderZengyis()
+        }
+    })
+}
+
+// 增益数据就绪后刷新
+if (window.onZengyiDataReady) {
+    window.onZengyiDataReady(() => {
+        if (zengyiView && zengyiView.style.display !== 'none') {
+            renderZengyis()
+        }
+    })
+}
+
 // 显示遗物图鉴视图（遗物共享，无项目区分）
 function showTujian() {
     tujianTitle.textContent = '遗物图鉴'
     calculatorView.style.display = 'none'
+    soulsealView.style.display = 'none'
+    zengyiView.style.display = 'none'
     developView.style.display = 'none'
     tujianView.style.display = 'block'
     // 太空探索计划视图下容器加宽为 90%
@@ -646,6 +1136,8 @@ function showDevelop(view, project) {
     developHint.textContent = '该模块正在建设中'
     calculatorView.style.display = 'none'
     tujianView.style.display = 'none'
+    soulsealView.style.display = 'none'
+    zengyiView.style.display = 'none'
     developView.style.display = 'block'
     // 太空探索计划视图下容器加宽为 90%
     mainContainer.classList.add('tujian-mode')
@@ -717,7 +1209,7 @@ function renderRelicCard(relic) {
     if (relic.desc) {
         const desc = document.createElement('div')
         desc.className = 'relic-desc'
-        desc.textContent = relic.desc
+        desc.textContent = formatText(relic.desc)
         descArea.appendChild(desc)
     }
     info.appendChild(descArea)
@@ -726,7 +1218,7 @@ function renderRelicCard(relic) {
     // 效果盒子（位于父盒子下方）
     const effect = document.createElement('div')
     effect.className = 'relic-card-effect'
-    effect.textContent = relic.effect
+    effect.textContent = formatText(relic.effect)
 
     card.appendChild(top)
     card.appendChild(effect)
@@ -795,7 +1287,7 @@ function openRelicDetail(relic) {
 
     // 补充信息来自 Data/relic-extra.js（可编辑）
     const extra = (typeof relicExtra !== 'undefined' && relicExtra) ? (relicExtra[relic.id] || '') : ''
-    relicDetailExtra.textContent = extra || '暂无补充信息'
+    relicDetailExtra.textContent = formatText(extra) || '暂无补充信息'
 
     relicDetailModal.classList.add('active')
 }
@@ -814,7 +1306,7 @@ function renderPagination(totalPages) {
     if (totalPages <= 1) return
 
     // 上一页
-    const prevBtn = createPageBtn('上一页', currentPage - 1, currentPage === 1)
+    const prevBtn = createPageBtn('上一页', currentPage - 1, currentPage === 1, false)
     relicPagination.appendChild(prevBtn)
 
     // 页码（含省略号逻辑）
@@ -826,21 +1318,22 @@ function renderPagination(totalPages) {
             ellipsis.textContent = '…'
             relicPagination.appendChild(ellipsis)
         } else {
-            relicPagination.appendChild(createPageBtn(p, p, p === currentPage))
+            relicPagination.appendChild(createPageBtn(p, p, false, p === currentPage))
         }
     })
 
     // 下一页
-    const nextBtn = createPageBtn('下一页', currentPage + 1, currentPage === totalPages)
+    const nextBtn = createPageBtn('下一页', currentPage + 1, currentPage === totalPages, false)
     relicPagination.appendChild(nextBtn)
 }
 
 // 创建分页按钮
-function createPageBtn(text, page, isDisabled) {
+function createPageBtn(text, page, isDisabled, isActive) {
     const btn = document.createElement('button')
     btn.type = 'button'
     btn.className = 'page-btn'
     btn.textContent = text
+    if (isActive) btn.classList.add('active')
     btn.disabled = isDisabled
     if (!isDisabled) {
         btn.addEventListener('click', () => {
