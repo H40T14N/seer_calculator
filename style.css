@@ -1620,8 +1620,10 @@ h2 {
 
 /* ============ 图鉴视图 ============ */
 /* 图鉴视图内部滚动（不随页面整体滚动）；标题与工具栏吸顶固定在顶部不滚动 */
+/* margin-top:0：垂直居中由 .container.tujian-mode 的 flex 布局承担，去掉此处偏移 */
 .tujian-view {
     margin-top: 0;
+
     max-height: calc(100vh - 50px - 90px);
     overflow-y: auto;
 }
