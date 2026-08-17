@@ -621,6 +621,11 @@ function setActiveNav(view, project) {
             (!i.dataset.project || i.dataset.project === project)
         i.classList.toggle('active', match)
     })
+
+    // 选中下拉子项时，其父级下拉分组同步高亮（如选中「魂印」→「无光黑洞」也高亮）
+    document.querySelectorAll('.nav-drop').forEach(drop => {
+        drop.classList.toggle('active', !!drop.querySelector('.nav-drop-menu .nav-link.active'))
+    })
 }
 
 // 顶部下拉分组：点击展开/收起（配合 hover 使用）

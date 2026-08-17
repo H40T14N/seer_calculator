@@ -201,9 +201,16 @@ body {
 }
 
 .nav-link.active {
-    color: #e4ac26;
+    color: #0380ba;
     font-weight: bold;
-    background-color: rgba(228, 172, 38, 0.12);
+    background-color: rgba(3, 128, 186, 0.2);
+}
+
+/* 选中下拉子项时，父级下拉分组同步高亮 */
+.nav-drop.active > .nav-link {
+    color: #0380ba;
+    font-weight: bold;
+    background-color: rgba(3, 128, 186, 0.2);
 }
 
 /* 下拉分组 */
@@ -253,7 +260,8 @@ body {
 }
 
 .nav-drop-menu .nav-link.active {
-    background-color: rgba(228, 172, 38, 0.15);
+    color: #0380ba;
+    background-color: rgba(3, 128, 186, 0.2);
 }
 
 /* 汉堡菜单按钮 */
@@ -1652,7 +1660,7 @@ h2 {
 
 .tujian-header h2 {
     margin: 0;
-    color: #e4ac26;
+    color: #0380ba;
     font-size: 18px;
     letter-spacing: 2px;
 }
@@ -2120,7 +2128,7 @@ h2 {
 }
 
 .event-detail-title {
-    color: #e4ac26;
+    color: #0380ba;
     font-size: 18px;
     font-weight: bold;
     letter-spacing: 1px;
