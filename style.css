@@ -2006,6 +2006,219 @@ h2 {
     }
 }
 
+/* ============ 事件图鉴（时空裂隙/幻影楼层） ============ */
+/* 事件卡片网格：与遗物网格一致，每行 4 个单元格 */
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 24.5%);
+    gap: 5px;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+/* 事件卡片：仅含精灵立绘 + 事件名字，垂直居中布局 */
+.event-card {
+    background-color: #083356;
+    border: 1px solid #17588d;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-radius: 6px;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.event-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+    border-color: #0380ba;
+}
+
+/* 立绘区：动态加载的立绘原始尺寸较大（常见 432×456 / 216×228），
+   用固定高度 + contain 等比缩放在盒内完整显示 */
+.event-card-sprite {
+    width: 100%;
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.event-card-sprite img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* 事件名字：居中，白字加粗 */
+.event-card-name {
+    color: #fff;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.3;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ============ 事件详情弹窗 ============ */
+.event-detail-content {
+    width: 72%;
+    max-width: 880px;
+    max-height: 85vh;
+    padding: 20px 24px;
+    text-align: left;
+}
+
+.event-detail-body {
+    display: flex;
+    gap: 20px;
+}
+
+/* 左侧：上半立绘 + 下半事件名与事件文本 */
+.event-detail-left {
+    flex: 1.15;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.event-detail-sprite {
+    height: 280px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: 1px solid #17588d;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.event-detail-sprite img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.event-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.event-detail-title {
+    color: #e4ac26;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.event-detail-text {
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.7;
+    white-space: pre-line;
+}
+
+/* 右侧：事件选项（垂直排列） */
+.event-detail-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border-left: 1px solid #17588d;
+    padding-left: 18px;
+}
+
+.event-detail-options-label {
+    color: #5181a1;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.event-detail-options {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    min-height: 0;
+    padding-right: 4px;
+}
+
+.event-detail-option {
+    padding: 10px 12px;
+    border: 1px solid #17588d;
+    border-radius: 4px;
+    background-color: rgba(3, 128, 186, 0.08);
+    color: #a9c4d8;
+    font-size: 13px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+/* 事件图鉴移动端适配 */
+@media (max-width: 768px) {
+    .event-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .event-card-sprite {
+        height: 100px;
+    }
+
+    .event-detail-content {
+        width: 92%;
+        max-width: none;
+        padding: 14px;
+    }
+
+    /* 弹窗改为上下布局：立绘 → 事件名+文本 → 选项 */
+    .event-detail-body {
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .event-detail-left {
+        flex: none;
+    }
+
+    .event-detail-sprite {
+        height: 200px;
+    }
+
+    .event-detail-right {
+        flex: none;
+        border-left: none;
+        border-top: 1px solid #17588d;
+        padding-left: 0;
+        padding-top: 12px;
+        max-height: 40vh;
+    }
+}
+
+@media (max-width: 480px) {
+    .event-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* 开发中占位视图 */
 .develop-view {
     margin-top: 5px;

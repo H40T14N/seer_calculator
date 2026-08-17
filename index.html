@@ -376,6 +376,22 @@
                 </div>
             </div>
 
+            <!-- 事件图鉴视图（无光黑洞时空裂隙 / 铸魂塔幻影楼层，共用） -->
+            <div id="eventView" class="tujian-view" style="display: none;">
+                <div class="tujian-fixed">
+                    <div class="tujian-header">
+                        <h2 id="eventTitle">无光黑洞 · 时空裂隙</h2>
+                    </div>
+                    <div class="tujian-toolbar">
+                        <input type="text" id="eventSearch" class="relic-search" placeholder="搜索事件名称...">
+                    </div>
+                </div>
+                <div class="tujian-scroll">
+                    <div class="event-grid" id="eventGrid"></div>
+                    <div class="pagination" id="eventPagination"></div>
+                </div>
+            </div>
+
             <!-- 开发中占位视图 -->
             <div id="developView" class="develop-view" style="display: none;">
                 <div class="develop-content">
@@ -491,6 +507,30 @@
         </div>
     </div>
 
+    <!-- 事件详情弹窗 -->
+    <div class="modal-overlay" id="eventDetailModal">
+        <div class="modal-content event-detail-content">
+            <button type="button" class="modal-close">&times;</button>
+            <div class="event-detail-body">
+                <!-- 左侧：上半精灵立绘，下半事件名+事件文本 -->
+                <div class="event-detail-left">
+                    <div class="event-detail-sprite">
+                        <img id="eventDetailSprite" alt="立绘">
+                    </div>
+                    <div class="event-detail-info">
+                        <div class="event-detail-title" id="eventDetailTitle"></div>
+                        <div class="event-detail-text" id="eventDetailText"></div>
+                    </div>
+                </div>
+                <!-- 右侧：事件选项（垂直排列） -->
+                <div class="event-detail-right">
+                    <div class="event-detail-options-label">事件选项</div>
+                    <div class="event-detail-options" id="eventDetailOptions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="Data/relic-icons.js"></script>
     <script src="Data/relic-data.js"></script>
     <script src="Data/relic-desc.js"></script>
@@ -498,6 +538,8 @@
     <script src="Data/soulseal-data.js"></script>
     <script src="Data/zengyi-icons.js"></script>
     <script src="Data/zengyi-data.js"></script>
+    <script src="Data/event-icons.js"></script>
+    <script src="Data/event-data.js"></script>
     <script src="main.js"></script>
 </body>
 

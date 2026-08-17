@@ -606,7 +606,9 @@ navAllItems.forEach(item => {
             showSoulseal()
         } else if (view === 'zengyi') {
             showZengyi()
-        } else if (view === 'events' || view === 'endings' || view === 'achievements') {
+        } else if (view === 'events') {
+            showEvents(project)
+        } else if (view === 'endings' || view === 'achievements') {
             showDevelop(view, project)
         }
     })
@@ -682,6 +684,7 @@ function showCalculator() {
     tujianView.style.display = 'none'
     soulsealView.style.display = 'none'
     zengyiView.style.display = 'none'
+    eventView.style.display = 'none'
     developView.style.display = 'none'
     // 计算器视图下容器恢复 50% 宽度
     mainContainer.classList.remove('tujian-mode')
@@ -694,6 +697,7 @@ function showSoulseal() {
     calculatorView.style.display = 'none'
     tujianView.style.display = 'none'
     zengyiView.style.display = 'none'
+    eventView.style.display = 'none'
     developView.style.display = 'none'
     soulsealView.style.display = 'block'
     mainContainer.classList.add('tujian-mode')
@@ -707,6 +711,7 @@ function showZengyi() {
     calculatorView.style.display = 'none'
     tujianView.style.display = 'none'
     soulsealView.style.display = 'none'
+    eventView.style.display = 'none'
     developView.style.display = 'none'
     zengyiView.style.display = 'block'
     mainContainer.classList.add('tujian-mode')
@@ -1112,12 +1117,255 @@ if (window.onZengyiDataReady) {
     })
 }
 
+// ============ 事件图鉴渲染（时空裂隙/幻影楼层） ============
+
+// 事件图鉴状态（无光黑洞/铸魂塔共用）
+const eventView = document.getElementById('eventView')
+const eventGrid = document.getElementById('eventGrid')
+const eventPagination = document.getElementById('eventPagination')
+const eventSearch = document.getElementById('eventSearch')
+const eventTitle = document.getElementById('eventTitle')
+const EVENT_PAGE_SIZE = 16
+let eventCurrentPage = 1
+let eventKeyword = ''
+let eventProject = ''  // 'blackhole' for 无光黑洞(version 202310), 'tower' for 铸魂塔(version 202411)
+
+// 事件详情弹窗
+const eventDetailModal = document.getElementById('eventDetailModal')
+const eventDetailSpriteImg = document.getElementById('eventDetailSprite')
+const eventDetailTitle = document.getElementById('eventDetailTitle')
+const eventDetailText = document.getElementById('eventDetailText')
+const eventDetailOptions = document.getElementById('eventDetailOptions')
+
+// 获取事件数据
+function getEventData() {
+    return window.getDynamicEventData ? window.getDynamicEventData() : []
+}
+
+// 根据项目和关键词过滤事件
+function filterEvents() {
+    return getEventData().filter(evt => {
+        // project: blackhole → version=202310; tower → version=202411
+        const matchProject = !eventProject || (eventProject === 'blackhole' ? evt.version === 202310 : evt.version === 202411)
+        const matchKeyword = !eventKeyword || evt.name.toLowerCase().includes(eventKeyword.toLowerCase())
+        return matchProject && matchKeyword
+    })
+}
+
+// 渲染事件卡片
+function renderEventCard(evt) {
+    const card = document.createElement('div')
+    card.className = 'event-card'
+
+    // 立绘区
+    const spriteArea = document.createElement('div')
+    spriteArea.className = 'event-card-sprite'
+
+    const spriteUrl = window.getEventSpriteUrl ? window.getEventSpriteUrl(evt.modelId) : ''
+    if (spriteUrl && evt.modelId) {
+        const img = document.createElement('img')
+        img.src = spriteUrl
+        img.alt = evt.name
+        img.loading = 'lazy'
+        img.onerror = () => {
+            spriteArea.style.background = '#083356'
+            spriteArea.style.opacity = '0.25'
+        }
+        spriteArea.appendChild(img)
+    } else {
+        spriteArea.style.background = '#083356'
+        spriteArea.style.opacity = '0.25'
+    }
+    card.appendChild(spriteArea)
+
+    // 事件名字
+    const nameArea = document.createElement('div')
+    nameArea.className = 'event-card-name'
+    nameArea.textContent = evt.name
+    card.appendChild(nameArea)
+
+    // 点击卡片打开详情弹窗
+    card.addEventListener('click', () => {
+        openEventDetail(evt)
+    })
+
+    return card
+}
+
+// 打开事件详情弹窗
+function openEventDetail(evt) {
+    eventDetailTitle.textContent = evt.name
+    eventDetailText.textContent = formatText(evt.desc)
+
+    // 精灵立绘
+    const spriteUrl = window.getEventSpriteUrl ? window.getEventSpriteUrl(evt.modelId) : ''
+    if (spriteUrl && evt.modelId) {
+        eventDetailSpriteImg.src = spriteUrl
+        eventDetailSpriteImg.style.display = 'block'
+    } else {
+        eventDetailSpriteImg.removeAttribute('src')
+        eventDetailSpriteImg.style.display = 'none'
+    }
+
+    // 事件选项
+    eventDetailOptions.innerHTML = ''
+    evt.choices.forEach(choice => {
+        const optionDiv = document.createElement('div')
+        optionDiv.className = 'event-detail-option'
+        optionDiv.textContent = formatText(choice.desc)
+        eventDetailOptions.appendChild(optionDiv)
+    })
+
+    eventDetailModal.classList.add('active')
+}
+
+// 关闭事件详情弹窗（点击遮罩或关闭按钮）
+eventDetailModal.addEventListener('click', (e) => {
+    if (e.target === eventDetailModal || e.target.classList.contains('modal-close')) {
+        eventDetailModal.classList.remove('active')
+    }
+})
+
+// 按 Escape 键关闭事件详情弹窗
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && eventDetailModal.classList.contains('active')) {
+        eventDetailModal.classList.remove('active')
+    }
+})
+
+// 渲染当前页事件
+function renderEvents() {
+    const filtered = filterEvents()
+    const totalPages = Math.max(1, Math.ceil(filtered.length / EVENT_PAGE_SIZE))
+    if (eventCurrentPage > totalPages) eventCurrentPage = totalPages
+
+    const start = (eventCurrentPage - 1) * EVENT_PAGE_SIZE
+    const pageData = filtered.slice(start, start + EVENT_PAGE_SIZE)
+
+    eventGrid.innerHTML = ''
+
+    if (pageData.length === 0) {
+        const empty = document.createElement('div')
+        empty.className = 'relic-empty'
+        empty.textContent = '没有找到匹配的事件'
+        eventGrid.appendChild(empty)
+    } else {
+        pageData.forEach(evt => {
+            eventGrid.appendChild(renderEventCard(evt))
+        })
+    }
+
+    renderEventPagination(totalPages)
+}
+
+// 渲染分页
+function renderEventPagination(totalPages) {
+    eventPagination.innerHTML = ''
+
+    if (totalPages <= 1) return
+
+    const prevBtn = createPageBtnEvent('上一页', eventCurrentPage - 1, eventCurrentPage === 1, false)
+    eventPagination.appendChild(prevBtn)
+
+    const pages = getPageRangeEvent(eventCurrentPage, totalPages)
+    pages.forEach(p => {
+        if (p === '...') {
+            const ellipsis = document.createElement('span')
+            ellipsis.className = 'page-ellipsis'
+            ellipsis.textContent = '…'
+            eventPagination.appendChild(ellipsis)
+        } else {
+            eventPagination.appendChild(createPageBtnEvent(p, p, false, p === eventCurrentPage))
+        }
+    })
+
+    const nextBtn = createPageBtnEvent('下一页', eventCurrentPage + 1, eventCurrentPage === totalPages, false)
+    eventPagination.appendChild(nextBtn)
+}
+
+function createPageBtnEvent(text, page, isDisabled, isActive) {
+    const btn = document.createElement('button')
+    btn.type = 'button'
+    btn.className = 'page-btn'
+    btn.textContent = text
+    if (isActive) btn.classList.add('active')
+    btn.disabled = isDisabled
+    if (!isDisabled) {
+        btn.addEventListener('click', () => {
+            eventCurrentPage = page
+            renderEvents()
+        })
+    }
+    return btn
+}
+
+function getPageRangeEvent(current, total) {
+    if (total <= 7) {
+        return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    const pages = new Set([1, total, current - 1, current, current + 1])
+    const sorted = [...pages].filter(p => p >= 1 && p <= total).sort((a, b) => a - b)
+    const result = []
+    let prev = 0
+    sorted.forEach(p => {
+        if (p - prev > 1) result.push('...')
+        result.push(p)
+        prev = p
+    })
+    return result
+}
+
+// 事件搜索输入
+eventSearch.addEventListener('input', () => {
+    eventKeyword = eventSearch.value.trim()
+    eventCurrentPage = 1
+    renderEvents()
+})
+
+// 精灵立绘URL映射就绪后刷新
+if (window.onEventSpritesReady) {
+    window.onEventSpritesReady(() => {
+        if (eventView && eventView.style.display !== 'none') {
+            renderEvents()
+        }
+    })
+}
+
+// 事件数据就绪后刷新
+if (window.onEventDataReady) {
+    window.onEventDataReady(() => {
+        if (eventView && eventView.style.display !== 'none') {
+            renderEvents()
+        }
+    })
+}
+
+// 显示事件图鉴视图
+function showEvents(project) {
+    // project: blackhole = 无光黑洞 时空裂隙, tower = 铸魂塔 幻影楼层
+    const titles = { blackhole: '无光黑洞 · 时空裂隙', tower: '铸魂塔 · 幻影楼层' }
+    eventTitle.textContent = titles[project] || '事件图鉴'
+    eventProject = project
+
+    calculatorView.style.display = 'none'
+    tujianView.style.display = 'none'
+    soulsealView.style.display = 'none'
+    zengyiView.style.display = 'none'
+    developView.style.display = 'none'
+    eventView.style.display = 'block'
+    mainContainer.classList.add('tujian-mode')
+    document.querySelector('.nav-menu').style.display = 'flex'
+    eventCurrentPage = 1
+    renderEvents()
+}
+
 // 显示遗物图鉴视图（遗物共享，无项目区分）
 function showTujian() {
     tujianTitle.textContent = '遗物图鉴'
     calculatorView.style.display = 'none'
     soulsealView.style.display = 'none'
     zengyiView.style.display = 'none'
+    eventView.style.display = 'none'
     developView.style.display = 'none'
     tujianView.style.display = 'block'
     // 太空探索计划视图下容器加宽为 90%
@@ -1138,6 +1386,7 @@ function showDevelop(view, project) {
     tujianView.style.display = 'none'
     soulsealView.style.display = 'none'
     zengyiView.style.display = 'none'
+    eventView.style.display = 'none'
     developView.style.display = 'block'
     // 太空探索计划视图下容器加宽为 90%
     mainContainer.classList.add('tujian-mode')
